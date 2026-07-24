@@ -957,6 +957,10 @@ function makeTile(title, pool, name, badge){
 
 function renderLecList(){
   const box = $("lecList"); box.innerHTML=""; slideRanges = [];
+  // 先頭に「全範囲」タイル（ノードは「全」）
+  slideAllTile = makeTile("全範囲からまとめて", QUESTIONS.slice(), "全範囲", "全");
+  box.appendChild(slideAllTile);
+  slideRanges.push({name:"全範囲", pool:QUESTIONS.slice(), wrap:slideAllTile});
   const lecs = Object.keys(LECTURES).filter(k=>/^\d+$/.test(k)).map(Number).sort((a,b)=>a-b);
   lecs.forEach(lec=>{
     // 資料番号（丸ノード）＝ 2桁ゼロ埋め
@@ -965,10 +969,6 @@ function renderLecList(){
     box.appendChild(wrap);
     slideRanges.push({name:LECTURES[lec].short, pool, wrap});
   });
-  // 末尾に「全範囲」タイル（ノードは「全」）
-  slideAllTile = makeTile("全範囲からまとめて", QUESTIONS.slice(), "全範囲", "全");
-  box.appendChild(slideAllTile);
-  slideRanges.push({name:"全範囲", pool:QUESTIONS.slice(), wrap:slideAllTile});
 }
 
 function renderMockList(){
