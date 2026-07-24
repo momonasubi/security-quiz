@@ -1,0 +1,1340 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>情報セキュリティ応用 試験対策クイズ</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#1e293b; --card2:#273449; --fg:#e2e8f0; --muted:#94a3b8;
+    --accent:#38bdf8; --accent2:#0ea5e9; --ok:#22c55e; --ng:#ef4444; --warn:#f59e0b;
+    --border:#334155; --shadow:0 8px 24px rgba(0,0,0,.35);
+    --dot:rgba(148,163,184,.22); --line:rgba(148,163,184,.08);
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#f1f5f9; --card:#ffffff; --card2:#f8fafc; --fg:#3f4a5a; --muted:#64748b;
+      --accent:#0284c7; --accent2:#0369a1; --border:#e2e8f0; --shadow:0 8px 24px rgba(15,23,42,.08);
+      --dot:rgba(71,85,105,.26); --line:rgba(71,85,105,.10);
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    color:var(--fg); line-height:1.7; -webkit-text-size-adjust:100%;
+    background-color:var(--bg);
+    background-image:
+      radial-gradient(var(--dot) 2px, transparent 2.4px),
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:46px 46px;
+    background-position:0 0, 0 23px, 23px 0;
+    background-attachment:fixed;
+  }
+  .wrap{max-width:720px; margin:0 auto; padding:16px 16px 64px}
+  header.appbar{
+    position:sticky; top:0; z-index:10; background:var(--bg);
+    padding:12px 0 8px; border-bottom:1px solid var(--border); margin-bottom:16px;
+  }
+  .titlerow{display:flex; align-items:center; justify-content:space-between; gap:10px}
+  h1{font-size:19px; margin:0; display:flex; align-items:center; gap:8px}
+  h1 .mark{background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff;
+    width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:16px;flex:none}
+  .bankswitch{display:inline-flex; flex:none; background:var(--card2); border:1px solid var(--border);
+    border-radius:99px; padding:3px; gap:2px}
+  .bankswitch button{border:none; background:transparent; padding:5px 13px; height:30px; border-radius:99px;
+    cursor:pointer; font-size:13px; font-weight:600; line-height:1; color:var(--muted);
+    display:grid; place-items:center; transition:background .15s, color .15s}
+  .bankswitch button.on{background:var(--accent); color:#fff; box-shadow:0 1px 4px rgba(0,0,0,.2)}
+  /* 模擬モード：メタリックなピンク（やや明るめ） */
+  body.mockbank{--accent:#db2f77; --accent2:#b01a5c}
+  body.mockbank .lecwrap.sel .lechead .t, body.mockbank .lecwrap.sel .lechead .n{color:#b01a5c}
+  /* 付箋：金属光沢を思わせるピンクのグラデーション */
+  body.mockbank .statrow:nth-child(1){background:linear-gradient(135deg,#d96b96 0%,#b01a5c 42%,#851246 58%,#c85088 100%)}
+  body.mockbank .statrow:nth-child(2){background:linear-gradient(135deg,#f28cb2 0%,#db2f77 42%,#a51a56 58%,#e56ba0 100%)}
+  body.mockbank .statrow:nth-child(3){background:linear-gradient(135deg,#e896b8 0%,#c9518a 42%,#94355f 58%,#dc7ba6 100%)}
+  body.mockbank .statrow:nth-child(4){background:linear-gradient(135deg,#bb5580 0%,#8a1247 42%,#5f0a30 58%,#a94373 100%)}
+  /* 主要ボタン・スイッチもメタリックピンク */
+  body.mockbank .btn:not(.secondary):not(.ghost){background:linear-gradient(135deg,#f28cb2 0%,#db2f77 45%,#a51a56 70%,#d96b96 100%)}
+  body.mockbank .bankswitch button.on{background:linear-gradient(135deg,#f086b0,#db2f77 50%,#a51a56)}
+  .sub{color:var(--muted); font-size:12.5px; margin-top:2px}
+  .card{background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:18px; box-shadow:var(--shadow); margin-bottom:16px}
+  .card h2{font-size:15px; margin:0 0 12px}
+  /* 範囲カードはオーバーレイ（半透明）で背景のドットを透かす */
+  /* 範囲背景カードは下地なし（ネットワーク背景を透かす／間の白を出さない） */
+  #rangeCard{background:transparent; border-color:transparent; box-shadow:none; padding-top:0}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    background:var(--accent); color:#fff; border:none; border-radius:10px;
+    padding:13px 18px; font-size:15px; font-weight:600; cursor:pointer; width:100%;
+    transition:transform .05s, background .2s}
+  .btn:active{transform:scale(.98)}
+  .btn:hover{filter:brightness(1.06)}
+  .btn.secondary{background:var(--card2); color:var(--fg); border:1px solid var(--border)}
+  .btn.ghost{background:transparent; color:var(--accent); border:1px solid var(--border)}
+  .btn:disabled{opacity:.5; cursor:not-allowed}
+  .btn-row{display:flex; gap:10px; margin-top:12px}
+  .btn-row .btn{width:auto; flex:1}
+  .btn.iconbtn{flex:0 0 auto; padding:11px 15px; display:inline-grid; place-items:center}
+  /* レイアウト：PC=横長2カラム、スマホ=1カラム＋アコーディオン */
+  .home-split{display:grid; grid-template-columns:1fr; gap:16px}
+  .home-split > .card{margin-bottom:0}
+  @media (min-width:640px){
+    .home-split{grid-template-columns:1fr 1fr; align-items:start}
+    /* PC：範囲リストは問題カードと同じ高さ内でスクロール（高さはJSで同期） */
+    #slideSelect, #mockSelect{overflow-y:auto; overflow-x:hidden; padding-right:6px}
+  }
+  @media (max-width:639px){ #probCard{display:none} }  /* スマホは右カラムを使わずアコーディオン */
+  /* スタイリッシュなスクロールバー（Chrome/Safari/Edge = WebKit系。三角ボタンは非表示） */
+  #slideSelect::-webkit-scrollbar, #mockSelect::-webkit-scrollbar{width:8px}
+  #slideSelect::-webkit-scrollbar-button, #mockSelect::-webkit-scrollbar-button,
+  #slideSelect::-webkit-scrollbar-button:single-button, #mockSelect::-webkit-scrollbar-button:single-button{
+    display:none !important; height:0 !important; width:0 !important; background:none !important}
+  #slideSelect::-webkit-scrollbar-track, #mockSelect::-webkit-scrollbar-track{background:transparent; margin:4px 0}
+  #slideSelect::-webkit-scrollbar-thumb, #mockSelect::-webkit-scrollbar-thumb{
+    border-radius:99px; border:2px solid transparent; background-clip:padding-box;
+    background-image:linear-gradient(180deg, var(--accent), var(--accent2)); transition:filter .2s}
+  #slideSelect::-webkit-scrollbar-thumb:hover, #mockSelect::-webkit-scrollbar-thumb:hover{filter:brightness(1.15)}
+  /* Firefox だけ標準プロパティで細いバーに（Chromeでは矢印ボタンが出るため使わない） */
+  @supports (-moz-appearance:none){
+    #slideSelect, #mockSelect{scrollbar-width:thin; scrollbar-color:color-mix(in srgb,var(--accent) 60%,transparent) transparent}
+  }
+
+  .lec-list{display:grid; grid-template-columns:1fr; gap:8px}
+  /* 範囲タイル：ベース＝PCの横長タイル（rail非表示） */
+  .lecwrap{display:flex; border:1.5px solid color-mix(in srgb, var(--muted) 42%, var(--card2)); border-radius:12px;
+    background:color-mix(in srgb, var(--card) 38%, transparent);
+    backdrop-filter:blur(13px) saturate(1.6); -webkit-backdrop-filter:blur(13px) saturate(1.6);
+    overflow:hidden; transition:border-color .15s, background .15s}
+  .lecwrap:hover{border-color:var(--accent)}
+  /* 選択中：塗りは白（青枠なし） */
+  /* 選択中カード：塗りは白、文字は濃いめのブルー */
+  .lecwrap.sel{background:var(--card); box-shadow:var(--shadow)}
+  .lecwrap.sel .lechead .t{color:#1856b8; font-weight:800}
+  .lecwrap.sel .lechead .n{color:#1856b8}
+  @media (prefers-color-scheme: dark){ .lecwrap.sel .lechead .t, .lecwrap.sel .lechead .n{color:#3f93e6} }
+  .rail{display:none}
+  .body{flex:1; min-width:0}
+  .lechead{display:flex; align-items:center; gap:11px; width:100%; padding:13px 14px; border:none; background:transparent;
+    color:inherit; font:inherit; text-align:left; cursor:pointer; transition:transform .05s}
+  .lechead:active{transform:scale(.99)}
+  .lechead .t{font-weight:600; font-size:13.5px; line-height:1.35; flex:1}
+  .lechead .n{color:var(--accent); font-weight:700; font-size:12px; flex:none;
+    background:var(--card); border:1px solid var(--border); border-radius:99px; padding:2px 9px; min-width:44px; text-align:center}
+  .catpanel{display:flex; flex-direction:column; gap:14px; padding-top:8px}
+
+  /* スマホ：路線図（縦型）レイアウト＋アコーディオン */
+  @media (max-width:639px){
+    .lec-list{gap:0}
+    .lecwrap{border:none; background:transparent; border-radius:0; overflow:visible}
+    .lecwrap:hover{border-color:transparent}
+    .lecwrap.sel{background:transparent}
+    /* 縦の路線ライン */
+    .rail{display:block; position:relative; width:46px; flex:none; align-self:stretch}
+    .rail::before{content:""; position:absolute; left:50%; transform:translateX(-50%);
+      top:0; bottom:0; width:3px; background:var(--border)}
+    .lecwrap:first-child .rail::before{top:28px}
+    .lecwrap:last-child .rail::before{bottom:auto; height:28px}
+    /* 駅（丸ノード）＝資料番号 */
+    .node{position:relative; z-index:1; display:grid; place-items:center; width:34px; height:34px; margin:11px auto 0;
+      border-radius:50%; background:var(--card); border:2px solid var(--border); color:var(--muted);
+      font-size:12.5px; font-weight:800; letter-spacing:.5px}
+    .lecwrap.sel .node{background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 25%,transparent)}
+    /* 選択時のガイド：ノードから広がるリング */
+    .lecwrap.sel .node::after{content:""; position:absolute; inset:-2px; border-radius:50%; animation:ringpulse .7s ease-out}
+    /* 駅の内容（カード）。白ベースのガラス（ドットが透ける）、選択中は白 */
+    .body{margin:6px 0; border:1.5px solid color-mix(in srgb, var(--muted) 42%, var(--card2)); border-radius:12px;
+      background:color-mix(in srgb, var(--card) 38%, transparent);
+      backdrop-filter:blur(13px) saturate(1.6); -webkit-backdrop-filter:blur(13px) saturate(1.6)}
+    .lecwrap.sel .body{background:var(--card); box-shadow:var(--shadow)}
+    .lecwrap.sel .lechead .t{font-size:15px}
+    .catpanel{display:none}
+    .lecwrap.sel .catpanel{display:flex; padding:10px 14px 14px; animation:fade .2s ease}
+  }
+  .mockinfo{padding:12px 14px; border:1px solid var(--border); border-radius:11px; background:var(--card2); font-size:13px}
+  .mockinfo b{color:var(--warn)}
+  .prog{margin-bottom:8px}
+  .appbar .prog{margin:12px 0 0}
+  .prog-bar{height:14px; background:var(--card2); border:1px solid var(--border); border-radius:99px; overflow:hidden}
+  .prog-bar > i{display:block; height:100%; width:0; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width .5s ease}
+  .prog-lbl{display:flex; justify-content:space-between; align-items:baseline; margin-top:6px; font-size:12px; color:var(--muted)}
+  .prog-lbl b{color:var(--fg); font-size:14px}
+  .rangesel{font:inherit; font-weight:700; font-size:13px; color:var(--accent2); background:var(--card2);
+    border:1px solid var(--border); border-radius:7px; padding:2px 6px; cursor:pointer; max-width:11em}
+  .rangesel:hover{border-color:var(--accent)}
+  .rangelabel{font-size:12px; color:var(--muted); margin:-4px 0 10px}
+  .rangelabel b{color:var(--fg)}
+  .cardnote{font-size:11.5px; color:var(--muted); margin:12px 0 0; text-align:center}
+  /* 問題形式リスト＝付箋（ふせん）風 */
+  .statrow{position:relative; display:flex; align-items:center; gap:11px; padding:14px 15px; border:none;
+    border-radius:3px; cursor:pointer; background:var(--accent); color:#fff; font:inherit; text-align:left; width:100%;
+    box-shadow:2px 3px 7px rgba(0,0,0,.22);
+    transition:filter .15s, transform .12s, box-shadow .12s}
+  .statrow:nth-child(odd){transform:rotate(-1deg)}
+  .statrow:nth-child(even){transform:rotate(1deg)}
+  /* 4種類の青（苦手／未出題／正解／ランダム） */
+  .statrow:nth-child(1){background:#1d4ed8}
+  .statrow:nth-child(2){background:#2f7fe0}
+  .statrow:nth-child(3){background:#0ea5c9}
+  .statrow:nth-child(4){background:#0369a1}
+  .statrow:hover{transform:rotate(0deg) translateY(-1px); filter:brightness(1.08); box-shadow:3px 6px 13px rgba(0,0,0,.3)}
+  .statrow:active{transform:rotate(0deg) scale(.99)}
+  .statrow.disabled{cursor:default; opacity:.4; pointer-events:none}
+  .statrow .lbl{flex:1; font-weight:700; font-size:14px; color:#fff}
+  /* 再生ボタン（▶）を丸いオーバーレイで強調 */
+  .statrow .go{flex:none; width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,.25);
+    display:grid; place-items:center; color:#fff; font-size:11px; font-weight:700; padding-left:2px;
+    box-shadow:0 1px 3px rgba(0,0,0,.15); transition:background .15s}
+  .statrow:hover .go{background:rgba(255,255,255,.4)}
+  /* 上部のテープ */
+  .statrow::before{content:""; position:absolute; top:-7px; left:50%; transform:translateX(-50%) rotate(-3deg);
+    width:52px; height:15px; background:rgba(255,255,255,.3); border:1px solid rgba(255,255,255,.28);
+    box-shadow:0 1px 2px rgba(0,0,0,.15)}
+
+  /* quiz */
+  .qtop{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; font-size:13px; color:var(--muted)}
+  /* クイズ：カードは内容に応じて拡張（回答後に解説分だけ伸びる）、ボタンは下部に固定 */
+  body.quizmode .wrap{padding-bottom:0}
+  body.quizmode footer{display:none}
+  #quiz > .card{margin-bottom:0}
+  #quiz > .btn-row{position:sticky; bottom:0; z-index:5; margin-top:0; padding:12px 0 14px;
+    justify-content:center; background:linear-gradient(to top, var(--bg) 72%, transparent)}
+  #quiz > .btn-row #nextBtn{flex:0 0 auto; min-width:200px}
+  .bar{display:flex; gap:0; height:8px; margin-bottom:12px; border-radius:99px; overflow:hidden}
+  .bar .seg{flex:1; background:var(--card2); transition:background .3s}
+  .bar .seg.ok{background:var(--ok)}
+  .bar .seg.ng{background:var(--ng)}
+  .qtag{display:inline-block; font-size:11px; color:var(--accent); background:color-mix(in srgb,var(--accent) 15%,transparent);
+    padding:2px 9px; border-radius:99px; margin-bottom:10px; font-weight:600}
+  .qtag.mock{color:#fff; background:linear-gradient(135deg,#f59e0b,#f97316)}
+  .qtext{font-size:17px; font-weight:600; margin:0 0 14px; line-height:1.6; white-space:pre-wrap; overflow-wrap:anywhere}
+  .qpre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12px; line-height:1.5;
+    background:var(--card2); border:1px solid var(--border); border-radius:9px; padding:11px 13px;
+    margin:0 0 16px; overflow-x:auto; white-space:pre}
+  .choices{display:flex; flex-direction:column; gap:10px}
+  .choice{display:flex; gap:12px; align-items:flex-start; padding:13px 15px; border:1.5px solid var(--border);
+    border-radius:11px; cursor:pointer; background:var(--card2); color:var(--fg); font-weight:600;
+    transition:border-color .15s, background .15s}
+  .choice:hover{border-color:var(--accent)}
+  .choice .key{flex:none; width:24px;height:24px;border-radius:6px;background:var(--card);border:1px solid var(--border);
+    display:grid;place-items:center;font-weight:700;font-size:13px}
+  .choice.sel{border-color:var(--accent); background:color-mix(in srgb,var(--accent) 12%,var(--card2))}
+  .choice.correct{border-color:var(--ok); background:color-mix(in srgb,var(--ok) 15%,var(--card2))}
+  .choice.correct .key{background:var(--ok); color:#fff; border-color:var(--ok)}
+  .choice.wrong{border-color:var(--ng); background:color-mix(in srgb,var(--ng) 15%,var(--card2))}
+  .choice.wrong .key{background:var(--ng); color:#fff; border-color:var(--ng)}
+  .choice.disabled{cursor:default; pointer-events:none}
+  /* 採点後：正解以外は文字を薄く（正解を目立たせる） */
+  .choice.disabled:not(.correct){color:var(--muted); opacity:.65; transition:opacity .25s, color .25s}
+  .explain{margin-top:16px; padding:16px 18px; border-radius:11px; background:var(--card2);
+    border:1px solid var(--border); font-size:13.5px; display:none}
+  .explain.show{display:block; animation:fade .25s}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+  @keyframes ringpulse{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 55%,transparent)}to{box-shadow:0 0 0 14px transparent}}
+  .explain .verdict{font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:6px}
+  .explain.ok .verdict{color:var(--ok)}
+  .explain.ng .verdict{color:var(--ng)}
+  /* 解説本文を濃く・読みやすく */
+  #qExpText{color:#1b2431; font-size:15.5px; line-height:1.95; font-weight:500; letter-spacing:.01em}
+  @media (prefers-color-scheme: dark){ #qExpText{color:#f1f5fb} }
+  .explain .src{color:var(--muted); font-size:11.5px; margin-top:8px}
+
+
+  /* result */
+  .score-big{text-align:center; padding:10px 0 4px}
+  .ring{position:relative; width:150px; height:150px; border-radius:50%; margin:0 auto 6px;
+    display:grid; place-items:center; transition:background .6s}
+  .ring i{position:absolute; inset:13px; border-radius:50%; background:var(--card); display:grid; place-items:center}
+  .ring .pct{position:relative; font-size:40px; font-weight:800; line-height:1}
+  .score-big .lbl{color:var(--muted); font-size:13.5px; margin-top:2px}
+  .score-big .rank{font-size:15px; font-weight:700; margin-top:6px}
+  .review-item{border-left:3px solid var(--ng); padding:10px 14px; margin-bottom:10px; background:var(--card2); border-radius:0 10px 10px 0}
+  .review-item .rq{font-weight:600; font-size:13.5px}
+  .review-item .ra{font-size:12.5px; margin-top:4px}
+  .review-item .ra .ok{color:var(--ok)}
+  .review-item .ra .ng{color:var(--ng)}
+  .hide{display:none !important}
+  footer{text-align:center; color:var(--muted); font-size:11px; margin-top:24px}
+  a{color:var(--accent)}
+</style>
+
+<div class="wrap">
+  <header class="appbar" id="appbar">
+    <div class="titlerow">
+      <h1><span class="mark">🛡</span>情報セキュリティ応用 試験対策</h1>
+      <div class="bankswitch" id="bankSwitch">
+        <button type="button" data-bank="slides" class="on">授業</button>
+        <button type="button" data-bank="mock">模擬</button>
+      </div>
+    </div>
+    <div class="prog" id="homeProg">
+      <div class="prog-bar"><i id="progFill"></i></div>
+      <div class="prog-lbl">
+        <span>回答 <select id="rangeSelect" class="rangesel" aria-label="範囲を選ぶ"></select></span>
+        <span><b id="progNum">0</b> / <span id="progTotal">0</span> 問</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== HOME ===== -->
+  <section id="home">
+    <div class="home-split">
+      <!-- 範囲（PCでは左カラム） -->
+      <div class="card" id="rangeCard">
+        <div id="slideSelect">
+          <div class="lec-list" id="lecList"></div>
+        </div>
+        <div id="mockSelect" class="hide">
+          <div class="mockinfo" style="margin-bottom:12px">
+            授業とは別に用意された<b>模擬問題（全<span id="mockCount">0</span>問）</b>。
+            DNS・ファイアウォール・CSIRT・ISMS・ペンテスト・ログ分析など、本番を想定した総合問題です。
+          </div>
+          <div class="lec-list" id="mockList"></div>
+        </div>
+      </div>
+
+      <!-- 問題カテゴリ（PCでは右カラム／スマホでは選択枠内に移動） -->
+      <div class="card" id="probCard">
+        <h2>問題</h2>
+        <div id="probSlot"></div>
+      </div>
+    </div>
+
+    <div id="catPanel" class="catpanel">
+      <button type="button" class="statrow" id="cardWrong">
+        <span class="lbl">苦手問題</span><span class="go">▶</span>
+      </button>
+      <button type="button" class="statrow" id="cardUnseen">
+        <span class="lbl">未出題問題</span><span class="go">▶</span>
+      </button>
+      <button type="button" class="statrow" id="cardCorrect">
+        <span class="lbl">正解した問題</span><span class="go">▶</span>
+      </button>
+      <button type="button" class="statrow" id="cardRandom">
+        <span class="lbl">ランダム出題</span><span class="go">▶</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== QUIZ ===== -->
+  <section id="quiz" class="hide">
+    <div class="qtop">
+      <span id="qProg">1 / 10</span>
+      <span id="qScore">正解 0</span>
+    </div>
+    <div class="bar" id="qBar"></div>
+    <div class="card">
+      <span class="qtag" id="qTag">第01回</span>
+      <p class="qtext" id="qText"></p>
+      <pre class="qpre hide" id="qPre"></pre>
+      <div class="choices" id="qChoices"></div>
+      <div class="explain" id="qExplain">
+        <div class="verdict" id="qVerdict"></div>
+        <div id="qExpText"></div>
+        <div class="src" id="qSrc"></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn secondary iconbtn" id="quitBtn" aria-label="ホームに戻る" style="flex:0 0 auto">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 4l9 6.5"/><path d="M5 9.5V20h5v-6h4v6h5V9.5"/></svg>
+      </button>
+      <button class="btn hide" id="nextBtn">次の問題へ</button>
+    </div>
+  </section>
+
+  <!-- ===== RESULT ===== -->
+  <section id="result" class="hide">
+    <div class="card">
+      <div class="score-big">
+        <div class="ring" id="rRing"><i><span class="pct" id="rPct">80%</span></i></div>
+        <div class="lbl" id="rLbl">10問中 8問正解</div>
+        <div class="rank" id="rRank"></div>
+      </div>
+    </div>
+    <div class="card" id="reviewCard">
+      <h2>間違えた問題の復習</h2>
+      <div id="reviewList"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="againBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+        もう一度
+      </button>
+      <button class="btn secondary" id="homeBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 4l9 6.5"/><path d="M5 9.5V20h5v-6h4v6h5V9.5"/></svg>
+        ホームへ
+      </button>
+    </div>
+  </section>
+
+  <footer>
+    授業スライド（情報セキュリティ応用2026 #01〜#15, 爰川知宏 先生）を元に自習用として作成。<br>
+    解答・解説は学習補助であり、公式な正答を保証するものではありません。
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   問題データ  answer は choices の 0 始まりインデックス
+   ============================================================ */
+const LECTURES = {
+  1:{title:"第01回 ガイダンス・基礎概念", short:"第01回"},
+  2:{title:"第02回 情報をとりまく脅威",   short:"第02回"},
+  3:{title:"第03回 インテリジェンス",     short:"第03回"},
+  4:{title:"第04回 人の脆弱性",           short:"第04回"},
+  5:{title:"第05回 認証",                 short:"第05回"},
+  6:{title:"第06回 暗号の基礎", short:"第06回"},
+  7:{title:"第07回 暗号とデジタル署名", short:"第07回"},
+  8:{title:"第08回 鍵共有と暗号の応用", short:"第08回"},
+  9:{title:"第09回 暗号解読の演習", short:"第09回"},
+  10:{title:"第10回 ネットワークセキュリティ", short:"第10回"},
+  11:{title:"第11回 フォレンジックとログ分析", short:"第11回"},
+  12:{title:"第12回 脆弱性とペンテスト", short:"第12回"},
+  13:{title:"第13回 セキュリティ管理", short:"第13回"},
+  14:{title:"第14回 CSIRT演習", short:"第14回"},
+  15:{title:"第15回 全体のまとめ", short:"第15回"},
+  M:{title:"模擬問題（本番形式）",          short:"模擬"},
+};
+
+const QUESTIONS = [
+/* ---------- 第01回 ---------- */
+{lec:1,q:"授業スライドの整理では「安全」と「安心」はどう区別される？",
+ c:["安全は主観的、安心は客観的","安全は客観的（対策の結果）、安心は主観的（心の状態）","どちらも客観的な指標である","安全は感情、安心は科学的データに基づく"],
+ a:1,e:"安全は科学的・技術的データに基づく客観的なもの（対策の結果）、安心は個人の感情・心理に基づく主観的なもの（心の状態）。両方そろわないと機能しない。"},
+{lec:1,q:"「セキュリティ」と「セーフティ」の関係として正しいものは？",
+ a:0,c:["セキュリティの結果セーフティな状態になる（逆はない）","セーフティの結果セキュリティな状態になる","両者は完全に同じ意味である","セーフティは悪意ある脅威のみを対象とする"],
+ e:"セーフティは主に悪意のない危険から守られた状態、セキュリティは悪意によるものも想定した状態。セキュリティの結果セーフティになるという一方向の関係。"},
+{lec:1,q:"「脅威(threat)」と「ハザード(hazard)」の違いとして適切なものは？",
+ a:2,c:["脅威は自然災害、ハザードは悪意ある攻撃","どちらも受動的な危険要因である","脅威は能動的な危険要因（悪意など）、ハザードは受動的な危険要因（自然災害など）","脅威は潜在的、ハザードは顕在的な危険である"],
+ e:"脅威(threat)はダメージや危険を起こしうる人やモノ＝能動的な危険要因（悪意など）。ハザード(hazard)は潜在的な危険性＝受動的な危険要因（自然災害など）。"},
+{lec:1,q:"授業で示された「リスク」を表す関係式はどれ？",
+ a:1,c:["リスク ＝ 脅威 ＋ 脆弱性 ＋ 資産","リスク ＝ 脅威 × 脆弱性 × 資産","リスク ＝ 脅威 ÷ 対策コスト","リスク ＝ 脆弱性 × 対策"],
+ e:"リスク＝「脅威」×「脆弱性」×「資産」。どれか1つでも大きくなればリスクは増し、どれだけ頑張ってもゼロにはできない。"},
+{lec:1,q:"リスク管理の手法のうち「保険をかける」が該当するものは？",
+ a:2,c:["リスクの低減","リスクの回避","リスクの移転（共有・転嫁）","リスクの保有（受容）"],
+ e:"保険は損害を他者と分担する「リスクの移転（転嫁）」。低減＝補強、回避＝高台へ引越し、保有＝復旧計画を作って備える、が例。"},
+{lec:1,q:"「脅威により危険に晒された状況」を指す語は？",
+ a:0,c:["危機","ハザード","リテラシー","脆弱性"],
+ e:"危険＝あぶないこと、脅威＝危険の要因、危機＝危険に晒された状況。『脅威により危険に晒された状況が危機』という関係。"},
+{lec:1,q:"「VUCA」に含まれない要素はどれ？",
+ a:3,c:["Volatility（不安定）","Uncertainty（不確実）","Complexity（複雑）","Vulnerability（脆弱）"],
+ e:"VUCAはVolatility(不安定)・Uncertainty(不確実)・Complexity(複雑)・Ambiguity(曖昧)。リスクが見通せない時代を表す語。"},
+{lec:1,q:"「情報セキュリティ」「サイバーセキュリティ」「ITセキュリティ」の関係で正しいものは？",
+ a:1,c:["3つはすべて同じ範囲を指す","情報セキュリティが最も広く、紙の資料も含む","ITセキュリティが最も広い概念である","サイバーセキュリティは紙の資料も対象に含む"],
+ e:"情報セキュリティは紙の資料も含むため最も広い。サイバーセキュリティはデジタル化された情報資産、ITセキュリティはITシステム上の話に限定される。"},
+{lec:1,q:"孫子の「知彼知己、百戰不殆」がセキュリティで意味するものは？",
+ a:0,c:["相手（脅威）を知り自身（資産・脆弱性）を知ることが重要","攻撃されたら必ず反撃せよ","百回戦えば必ず勝てる","味方だけを知っていれば十分である"],
+ e:"『彼を知り己を知れば百戦殆うからず』。脅威を知り、自らの資産・脆弱性を知ることがセキュリティの本質という文脈で引用される。"},
+
+/* ---------- 第02回 ---------- */
+{lec:2,q:"情報セキュリティの3要素（CIA）に含まれないものは？",
+ a:3,c:["機密性（Confidentiality）","完全性（Integrity）","可用性（Availability）","真正性（Authenticity）"],
+ e:"CIAは機密性・完全性・可用性の3要素。真正性は7要素に含まれる追加要素。"},
+{lec:2,q:"「改ざんされると困る」に対応する情報セキュリティの要素は？",
+ a:1,c:["機密性","完全性","可用性","責任追跡性"],
+ e:"完全性(Integrity)＝資産の正確さ・完全さを保護する特性。『改ざんされると困る』に対応。"},
+{lec:2,q:"7要素のうち「動作を動作主のエンティティまで一意に追跡できることを確実にする特性」は？",
+ a:2,c:["真正性（Authenticity）","否認防止（Non-repudiation）","責任追跡性（Accountability）","信頼性（Reliability）"],
+ e:"責任追跡性(Accountability)。『責任者がわからないと困る』に対応。真正性は『主張どおりであること』、否認防止は『後で否認されない』。"},
+{lec:2,q:"「ネットワークを介して感染するマルウェア」を指す代表的な語は？",
+ a:1,c:["トロイの木馬","ワーム（Worm）","アドウェア","スケアウェア"],
+ e:"ワーム(Worm)はネットワークを介して自己増殖・感染するマルウェア。1990年代にMelissaやLOVELETTERなどメール添付で伝搬するものが増加した。"},
+{lec:2,q:"DDoS攻撃の説明として正しいものは？",
+ a:0,c:["多数の分散した端末から高負荷をかけサービスを妨害する","データを暗号化して身代金を要求する","正規サイトに偽装して情報を盗む","管理者権限を奪って自身を隠蔽する"],
+ e:"DDoS(Distributed DoS)は分散型のサービス拒否攻撃。現在はマルウェア感染型（ボットネット）によるものが主流。"},
+{lec:2,q:"2016年に登場し、出荷時設定のままのIoT機器を標的として大規模DDoSを行ったマルウェアは？",
+ a:2,c:["WannaCry","Code-Red","Mirai","Stuxnet"],
+ e:"Miraiは脆弱なIoT端末を踏み台にボットネットを構成し、1Tbps以上の大規模DDoSを実現。出荷時設定のままの端末が感染標的となった。"},
+{lec:2,q:"2010年にイランの核施設の遠心分離機を機能停止させた、制御システム(PLC)を狙った初のマルウェアとされるものは？",
+ a:3,c:["Mirai","Code-Red","WannaCry","Stuxnet"],
+ e:"Stuxnetは制御システム(PLC)を狙った初のマルウェアとされ、インターネット非接続の施設をUSB等経由で攻撃。『隔離すれば安全』という安全神話を打ち砕いた。"},
+{lec:2,q:"「ルートキット(Rootkit)」の特徴として正しいものは？",
+ a:0,c:["管理者(root)権限を奪取して動作し、自身の隠蔽も容易","必ずネットワーク経由でしか感染しない","データを暗号化して身代金を要求する","ユーザ権限しか奪えない"],
+ e:"ルートキットは利用者の意図に反して管理者(root)権限を奪取し任意コードを実行、さらにその隠蔽も容易。権限昇格や利用者を錯誤させる手口で奪取する。"},
+{lec:2,q:"個人情報のうち「思想信条・病歴・犯罪歴など、特に扱いに注意が必要なもの」を指す語は？",
+ a:1,c:["個人識別符号","要配慮個人情報","匿名加工情報","個人関連情報"],
+ e:"要配慮個人情報＝思想信条・社会的身分・病歴・犯罪歴など。個人識別符号は指紋や免許証番号、個人関連情報はIPアドレスやCookieなど。"},
+{lec:2,q:"個人情報を「他の情報と紐づけて復元可能」な形に加工したものは？",
+ a:1,c:["匿名加工情報","仮名加工情報","要配慮個人情報","個人識別符号"],
+ e:"仮名加工情報は他の情報と紐づければ復元可能。匿名加工情報は不可逆に変換したもの（統計データなど）で復元できない。"},
+{lec:2,q:"GDPR（EU一般データ保護規則）の内容として正しいものは？",
+ a:0,c:["情報侵害時は72時間以内に監督当局へ報告義務がある","EU域内の企業にしか適用されない","違反しても制裁金は課されない","個人の同意は不要とされている"],
+ e:"GDPRは域外適用され、情報侵害時は72時間以内に報告義務、明確な同意取得が必要、制裁金は最大で年間売上4%または2,000万ユーロ。"},
+
+/* ---------- 第03回 ---------- */
+{lec:3,q:"「脅威アクター(Threat actor)」の説明として正しいものは？",
+ a:0,c:["デジタル領域に意図的に危害を加える個人または組織","偶発的にバグを生むソフトウェアのこと","自然災害などの受動的危険要因","セキュリティ製品の名称"],
+ e:"脅威アクターはデジタル領域に意図的に危害を加える個人・組織。国家・犯罪・ハクティビスト・テロリスト・愉快犯・内部犯などに分類され、動機も様々。"},
+{lec:3,q:"昨今のランサムウェア攻撃の傾向として正しいものは？",
+ a:1,c:["身代金要求のみの単純な手口が主流","暗号化・情報窃取・DDoS等を組み合わせた多重脅迫が主流","感染しても実害はほとんどない","暗号技術の衰退で急速に減少している"],
+ e:"最近は身代金のみは稀で、暗号化に加え『機密情報を公開されたくなければ』『DDoSされたくなければ』と多重に脅迫するケースが多い。"},
+{lec:3,q:"2017年に150カ国23万台以上に感染し、ベースにNSAからの流出コードが使われたランサムウェアは？",
+ a:2,c:["Mirai","Stuxnet","WannaCry","BlackEnergy"],
+ e:"WannaCryは2017年に大流行したWindowsランサムウェア。NSAから流出したコードがベースとされ、北朝鮮の関与が疑われている。"},
+{lec:3,q:"不正のトライアングル（Cresseyの理論）を構成する3要素は？",
+ a:0,c:["動機・機会・正当化","脅威・脆弱性・資産","機密性・完全性・可用性","知識・所有・生体"],
+ e:"内部犯による不正は、動機(Pressure)・機会(Opportunity)・正当化(Rationalization)の3要素が揃うとリスクが高まる。"},
+{lec:3,q:"「有用なプログラムに偽装しつつマルウェア機能を隠し持つ」タイプの脅威は？",
+ a:1,c:["ワーム","トロイの木馬","ルートキット","スケアウェア"],
+ e:"トロイの木馬は有用・無害なプログラムやデータに偽装しつつ内部にマルウェア機能を隠し持つ。バックドアやキーロガーが代表例。"},
+{lec:3,q:"データ→インフォメーション→インテリジェンスの説明として正しいものは？",
+ a:3,c:["インテリジェンスは生データそのもの","インフォメーションは解釈が不要な最終成果物","データが最も価値の高い情報段階である","解釈（なぜ・だからどうなる）を加えて行動に移せる形にしたものがインテリジェンス"],
+ e:"データやインフォメーションのままでは行動に移せない。『だからどうなる／なぜそうなる』の解釈を加えたインテリジェンスへの変換が必要。"},
+{lec:3,q:"「公開された情報を集めることで得られるインテリジェンス」を指す語は？",
+ a:0,c:["OSINT","SIGINT","HUMINT","DIKW"],
+ e:"OSINT(Open Source Intelligence)＝公開情報から得る。SIGINTは信号（電波・センサ）、HUMINTは人間（外交・諜報）から得るインテリジェンス。"},
+{lec:3,q:"OSINTの情報源のうち「IoT機器のネットワーク接続情報を収集するサイト」は？",
+ a:1,c:["Have I Been Pwned?","Shodan","Internet Archive","VirusTotal"],
+ e:"Shodan(shodan.io)は接続機器の種類や脆弱性発見に使える。Have I Been Pwnedはメール漏洩、Internet Archiveは過去サイト、VirusTotalはマルウェア情報。"},
+{lec:3,q:"「専用ツール(Torなど)を介さないと閲覧できず、違法取引の温床にもなるWeb」は？",
+ a:2,c:["サーフェスウェブ","ディープウェブ","ダークウェブ","クリアウェブ"],
+ e:"ダークウェブは通常の検索エンジンでは見つからず、Torなどの専用ツールが必要。違法情報や攻撃ツールの取引が行われる一方、内部告発等にも使われる。"},
+{lec:3,q:"「RaaS(Ransomware as a Service)」の説明として正しいものは？",
+ a:0,c:["ランサムウェア攻撃をサービスとして提供する組織化された仕組み","ランサムウェアを検知する防御製品","身代金を返金する保険サービス","正規のクラウドバックアップサービス"],
+ e:"RaaSはランサムウェア攻撃をサービス化して提供する仕組み。ダークウェブで求人も行われ、Initial Access Brokerや交渉者など役割分担も存在する。"},
+
+/* ---------- 第04回 ---------- */
+{lec:4,q:"「問題が起きても自分だけは関係ないと思い込む」認知バイアスは？",
+ a:0,c:["正常性バイアス","同調性バイアス","確証バイアス","後知恵バイアス"],
+ e:"正常性バイアス＝自分だけは大丈夫と思い込む。同調性＝周囲に引きずられる、確証＝先入観に固執、後知恵＝予測できたはずと当事者を責める。"},
+{lec:4,q:"「自身の先入観にこだわり、否定する情報に耳を傾けない」バイアスは？",
+ a:2,c:["正常性バイアス","同調性バイアス","確証バイアス","利用可能性ヒューリスティック"],
+ e:"確証バイアス(Confirmation bias)。エコーチェンバーやフィルターバブルとも結びつき、偏った情報が強化される要因となる。"},
+{lec:4,q:"ソーシャルエンジニアリングの手法「トラッシング(Trashing)」とは？",
+ a:1,c:["背後から画面を覗き見る","廃棄書類などのゴミから情報を収集する","偽の警告でユーザを動揺させる","わずかずつ資産を窃取する"],
+ e:"トラッシングは廃棄書類等から情報収集する手口。覗き見はショルダーサーフィン、偽警告はスケアウェア、わずかずつ窃取はサラミ法。"},
+{lec:4,q:"標的型攻撃(APT)の特徴として最も適切なものは？",
+ a:3,c:["不特定多数に一斉送信する","高度な暗号技術が最重要である","一過性で短時間に完結する","特定の個人・組織を狙い、持続的に潜伏して活動することが多い"],
+ e:"APT(Advanced Persistent Threats)は特定の個人・組織を狙い持続的に潜伏。標的型メールや水飲み場攻撃が代表的で、心理面が重要でテクノロジは決定的ではない。"},
+{lec:4,q:"「ドベネックの桶（リービッヒの最小律）」がセキュリティに示す教訓は？",
+ a:0,c:["一番弱い部分（多くの場合『人』）が全体の水準を決める","最も高い板の高さまで水が溜まる","板の枚数が多いほど安全である","桶の材質が最も重要である"],
+ e:"一番短い板までしか水は溜まらない＝最も弱い部分が狙われる。その弱点は大抵『人』であるという教訓。"},
+{lec:4,q:"「意図的に流される偽りの情報」を指す語は？",
+ a:1,c:["Misinformation","Disinformation","Information","Intelligence"],
+ e:"Disinformationは害意をもって故意に広められる偽情報。Misinformationは故意や害意のない誤報・デマ（事実誤認など）。"},
+{lec:4,q:"「アルゴリズムが個人向けに最適化した結果、好まない情報に接する機会が失われる状況」は？",
+ a:0,c:["フィルターバブル","エコーチェンバー","認知戦","トリアージ"],
+ e:"フィルターバブルは検索/SNSのアルゴリズム最適化で見える情報が偏る現象。見えている一部を全体だと錯覚してしまう。"},
+{lec:4,q:"「価値観の似た者同士が交流・共感し合い、特定の意見や思想が増幅する現象」は？",
+ a:2,c:["フィルターバブル","正常性バイアス","エコーチェンバー","サラミ法"],
+ e:"エコーチェンバーは似た意見の人々が集まり特定の思想が増幅する現象。陰謀論などが広まりやすく、近年は生成AI依存による『1人エコーチェンバー』も指摘される。"},
+{lec:4,q:"情報のトリアージにおいて特に注意すべき区別は？",
+ a:0,c:["『信頼できない』と『（情報不足で）判断できない』は別物として扱う","信頼できる情報源は1つだけで十分","古い情報ほど信頼性が高い","情報源より情報量を優先する"],
+ e:"誤情報を鵜呑みにすると誤ったインテリジェンス・意思決定につながる。情報源の実績照合や複数ソースの整合確認が必要で、『信頼できない』と『判断できない』の混同に注意。"},
+
+/* ---------- 第05回 ---------- */
+{lec:5,q:"「考えられる全パターンを総当たりで試す」パスワード解読方法は？",
+ a:0,c:["ブルートフォース攻撃","辞書攻撃","セッションハイジャック","リスクベース認証"],
+ e:"ブルートフォース攻撃(Brute force)は全パターンを総当たり。生年月日など運用が弱いと試行範囲が激減し、実質総当たりでなく解読されやすくなる。"},
+{lec:5,q:"よく使われるパスワード一覧などを試す「辞書攻撃」の別名は？",
+ a:1,c:["レインボー攻撃","パスワードリスト攻撃","中間者攻撃","水飲み場攻撃"],
+ e:"辞書攻撃はパスワードリスト攻撃とも呼ばれ、運用面の弱さ（ありがちなパスワード）を突く。RockYou.txtなどの辞書ファイルが有名。"},
+{lec:5,q:"多要素認証(MFA)の3つの要素の組み合わせとして正しいものは？",
+ a:2,c:["知識・時間・場所","知識・所有・年齢","知識(SYK)・所有(SYH)・生体(SYA)","所有・生体・行動"],
+ e:"MFAは知識要素(Something You Know:パスワード)・所有要素(Something You Have:ICカードやOTP)・生体要素(Something You Are:指紋など)を2つ以上組み合わせる。"},
+{lec:5,q:"ワンタイムパスワード(OTP)やICカードは、多要素認証のどの要素にあたる？",
+ a:1,c:["知識要素(SYK)","所有要素(SYH)","生体要素(SYA)","監査要素"],
+ e:"OTPやICカード、SMS(電話番号)は『所有していること』を示す所有要素(Something You Have)。パスワードは知識要素、指紋は生体要素。"},
+{lec:5,q:"AAAの3つのAに含まれないものは？",
+ a:3,c:["Authentication（認証）","Authorization（認可）","Accounting（監査）","Availability（可用性）"],
+ e:"AAAは認証(Authentication)・認可(Authorization)・監査(Accounting)。認証＝本人確認、認可＝権限の制限、監査＝行動ログの監視。"},
+{lec:5,q:"アクセス制御の方式で「情報の作成者が読み取り・書き込み・実行の権限を持つ」ものは？",
+ a:0,c:["任意アクセス制御（DAC）","強制アクセス制御（MAC）","役割ベースアクセス制御（RBAC）","リスクベース認証"],
+ e:"DAC(Discretionary Access Control)は作成者が権限を持つ。MACは管理者に権限を集中、RBACは役割に応じて権限を付与する方式。"},
+{lec:5,q:"シングルサインオン(SSO)の代表的な方式に含まれないものは？",
+ a:3,c:["OAuth","OpenID Connect","SAML","RBAC"],
+ e:"SSOは一度の認証で複数システムを利用できる仕組み。代表方式はOAuth・OpenID Connect・SAML。RBACはアクセス制御の方式。"},
+{lec:5,q:"HTTPで状態管理（セッション管理）を可能にする仕組みは？",
+ a:1,c:["User-Agentヘッダ","Cookie","POSTメソッド","ステータスコード"],
+ e:"HTTPはリクエスト-レスポンス型で状態を持たない。サーバが割り当てた識別番号(Cookie)をブラウザが保持・再送することで認可の状態管理ができる。"},
+{lec:5,q:"「セッション情報の盗聴や推測により成りすます攻撃」は？",
+ a:2,c:["ブルートフォース攻撃","フィッシング","セッションハイジャック","トラッシング"],
+ e:"セッションハイジャックはセッション情報を盗聴・推測して成りすます攻撃。成功すると認証後の状態が乗っ取られ、パスワード等が無力化されてしまう。"},
+{lec:5,q:"Cookieのセキュリティ属性のうち「JavaScriptからの参照を禁止し漏洩を防ぐ」ものは？",
+ a:1,c:["Secure属性","HTTPOnly属性","SameSite属性","Expires属性"],
+ e:"HTTPOnly属性はCookieの参照・操作をHTTPリクエストに限定しJavaScriptからの参照を防ぐ。Secureは暗号化通信のみ、SameSiteはドメインをまたぐ送信を制御。"},
+{lec:5,q:"リスクベース認証の説明として正しいものは？",
+ a:0,c:["デバイスや位置・時間などの状況を分析し、リスクに応じて追加認証を動的に適用する","常に必ず生体認証を要求する方式","パスワードを定期的に強制変更させる方式","Cookieを暗号化する技術"],
+ e:"リスクベース認証はログイン時の状況（いつもと違うPC・ネットワーク・時間帯など）を多角的に分析し、リスクレベルに応じて追加の本人確認を動的に適用する。"},
+{lec:5,q:"「多要素認証」と「多段階認証」の違いについて正しい説明は？",
+ a:3,c:["両者は完全に同じ意味である","多段階認証の方が必ず安全である","多要素認証は同じ要素を2回使う認証である","多要素認証は異なる種類の要素（知識・所有・生体）を組み合わせる点が本質である"],
+ e:"多要素認証(≠多段階認証)は異なる種類の要素を組み合わせる点が要点。パスワードを2回聞くような同一要素の多段階では、多要素にはならない。"},
+{"lec": 6, "q": "中間者攻撃（MITM: Man In The Middle）に該当する脅威として、スライドで挙げられていないものはどれか。", "a": 3, "c": ["盗聴", "改ざん", "なりすまし", "サービス妨害（DoS）"], "e": "スライドではネットワーク上の脅威である中間者攻撃として「盗聴」「改ざん」「なりすまし」の3つが挙げられている。サービス妨害（DoS）はこのページには挙げられていないため誤り。"},
+{"lec": 6, "q": "シーザー暗号について、スライドの記述として正しいものはどれか。", "a": 1, "c": ["転置式の代表例で、文字の順序を入れ替える方式である", "広く知られた換字式古典暗号の代表例で、文字を一定数ずらす方式である", "コンピュータ登場後に生まれた現代暗号の一種である", "鍵を用いず、方式だけで暗号化する方式である"], "e": "スライドではシーザー暗号を「広く知られた換字式古典暗号の代表例」とし、3文字ずらす例では鍵が「3」だと説明している。転置式ではなく換字式であり、古典暗号なので現代暗号ではなく、鍵（ずらす数）を用いるため他は誤り。"},
+{"lec": 6, "q": "シーザー暗号（アルファベットのみ）に対するブルートフォース攻撃について、スライドの記述として正しいものはどれか。", "a": 2, "c": ["鍵の総当たりは事実上不可能である", "3通りだけ試せばよい", "わずか26通りを試せばよい", "素因数分解が必要になる"], "e": "スライドは「シーザー暗号でかつアルファベットだけならば、わずか26通り」と述べており、総当たりが容易であることを示している。3通りや素因数分解は無関係で、総当たり不可能でもないため他は誤り。"},
+{"lec": 6, "q": "「敵はシステムを知っている（The enemy knows the system）」という格言や、暗号方式は秘密である必要がなく敵の手に落ちても不都合がないという原理を指す組み合わせとして正しいものはどれか。", "a": 0, "c": ["シャノンの格言／ケルクホフスの原理", "ケルクホフスの格言／シャノンの原理", "ヴィジュネルの原理／エニグマの格言", "RSAの原理／ECCの格言"], "e": "スライドでは「敵はシステムを知っている」がシャノンの格言、「暗号方式は秘密である必要がなく敵の手に落ちても不都合がない」がケルクホフスの原理として示されている。名称の対応が逆のものや無関係な用語は誤り。"},
+{"lec": 6, "q": "共通鍵暗号のブロック暗号におけるECBモードについて、スライドの記述として正しいものはどれか。", "a": 2, "c": ["直前のブロックの暗号文をXORして暗号化するため安全性が高い", "カウンタを暗号化する方式で推奨される", "ブロックごとに個別に暗号化するため、同じ平文が同じ出力となり非常に脆弱である", "ビット／バイト単位で逐次暗号化するストリーム暗号の一種である"], "e": "スライドはECBモードを「ブロックごとに個別に暗号化」し「同じ平文だと同じ出力となる→リプレイ攻撃に弱い」「非常に脆弱なので使うべきでない」と説明している。直前ブロックを使うのはCBC、カウンタを暗号化するのはCTR、逐次暗号化はストリーム暗号なので他は誤り。"},
+{"lec": 6, "q": "ストリーム暗号について、スライドの記述として正しいものはどれか。", "a": 1, "c": ["データを一定の長さのブロックごとに区切って暗号化し、代表例はAESである", "データをビット／バイト単位で逐次暗号化し、代表例はRC4である", "公開鍵と秘密鍵のペアを用いる非対称暗号方式である", "素因数分解の困難性を安全性の根拠とする方式である"], "e": "スライドはストリーム暗号を「データをビット／バイト単位で逐次暗号化」する方式とし、代表例としてRC4やKCipher-2を挙げ、ブロック暗号より処理が軽いとしている。ブロック区切りやAESはブロック暗号、鍵ペアや素因数分解は公開鍵暗号／RSAの説明なので誤り。"},
+{"lec": 6, "q": "スライドが挙げる「乱数に求められる性質」に含まれないものはどれか。", "a": 3, "c": ["無作為性（統計的な偏りや規則性がない）", "予測不可能性（次に生成される乱数を予測できない）", "再現不可能性（恣意的な数の生成ができない）", "可逆性（生成した乱数から元の鍵を復元できる）"], "e": "スライドは乱数に求められる性質として無作為性・予測不可能性・再現不可能性の3つを挙げている。可逆性（鍵の復元）は挙げられておらず、むしろ暗号として望ましくないため誤り。"},
+{"lec": 6, "q": "擬似乱数の生成法である線形合同法（Xn+1 = (A × Xn + B) mod M）について、スライドが指摘する欠点として正しいものはどれか。", "a": 0, "c": ["一定周期で同じ値が生成され、特に下位ビットの偏りが大きい", "多くのメモリを必要とし実装が複雑である", "真の乱数であり再現できない", "素因数分解の困難性に依存している"], "e": "スライドは線形合同法について「一定周期で同じ値が生成される→予測／再現不可能性が低い」「特に下位のビットについて偏り大→無作為性が低い」と指摘している。実装はシンプルで少メモリと述べられており、擬似乱数であって真の乱数ではなく、素因数分解とも無関係なので他は誤り。"},
+{"lec": 6, "q": "公開鍵暗号方式であるRSA暗号について、スライドの記述として正しいものはどれか。", "a": 2, "c": ["共通鍵暗号（対称暗号）の一種で、暗号化と復号に同じ鍵を用いる", "楕円曲線上の離散対数問題の困難性を安全性の根拠とする", "桁数が大きい合成数の素因数分解の困難性を安全性の根拠とする", "RSAはECCよりも少ないビット数で同等の強度を確保できる"], "e": "スライドはRSAを「桁数が大きい合成数の素因数分解の困難性を安全の根拠とする公開鍵暗号方式」と説明している。共通鍵暗号ではなく、離散対数問題を根拠とするのはECC、少ないビット数で強度を確保できるのもECCのため他は誤り。"},
+{"lec": 7, "q": "ハッシュ関数の性質として、スライドの説明に最も合致するものはどれか。", "a": 2, "c": ["入力の長さに応じて出力の長さが変化する", "ハッシュ値から元データを容易に復元できる", "任意の入力から固定長の出力を得られ、僅かな改変でも値が大きく変わる", "同じ長さの入力なら必ず同じハッシュ値になる"], "e": "ハッシュ関数は任意長の入力から固定長の出力を得る関数で、僅かな改変でもハッシュ値が大きく変わるため改ざん検出に使える。出力は固定長なので長さは変化せず(選択肢1誤り)、原像計算困難性により復元は困難(選択肢2誤り)、入力が違えば値も変わる(選択肢4誤り)。"},
+{"lec": 7, "q": "ハッシュの安全性のうち「元データと同じハッシュとなる別データの作成が困難」という性質を指す語はどれか。", "a": 1, "c": ["原像計算困難性", "第2原像計算困難性（弱衝突）", "衝突発見困難性（強衝突）", "レインボーテーブル耐性"], "e": "第2原像計算困難性(弱衝突)は、ある元データと同じハッシュになる別データの作成が困難という性質。原像計算困難性はハッシュから元データの復元が困難なこと(選択肢0)、衝突発見困難性(強衝突)は同じハッシュになる複数データの組の探索が困難なこと(選択肢2)を指す。"},
+{"lec": 7, "q": "ハッシュ関数の安全性に関するスライドの記述として正しいものはどれか。", "a": 3, "c": ["MD5は現在も強衝突の探索が困難で安全に利用できる", "SHA-1は強衝突の探索が非現実的で推奨されている", "現在はMD5以上のハッシュの使用が推奨されている", "MD5は2004年に強衝突を短時間で探索する方式が発見され安全とはいえない"], "e": "MD5は2004年に強衝突を短時間(数分程度)で探索する方式が発見され、既に安全とはいえない。SHA-1も現実的な時間で強衝突を探索可能なレベルであり(選択肢1誤り)、現在推奨されるのはSHA-256以上(選択肢2誤り)。"},
+{"lec": 7, "q": "パスワードのハッシュ保管とソルトについて、スライドの説明として正しいものはどれか。", "a": 1, "c": ["ソルトを付ければレインボーテーブルによる辞書攻撃のリスクは完全に無くなる", "パスワードに別文字列（ソルト）を付けてハッシュ化すると解読をより困難にできる", "パスワードは平文で格納する方がハッシュ化より安全である", "ソルトが漏えいしても安全性には全く影響しない"], "e": "ソルトを付けてハッシュ化することでハッシュからの解読をより困難にできる。ただしレインボーテーブルによる辞書攻撃のリスクは残り(選択肢0誤り)、平文格納は危険で(選択肢2誤り)、ソルトの漏えいには注意が必要(選択肢3誤り)。"},
+{"lec": 7, "q": "メッセージ認証コード（MAC）についてスライドが指摘する限界はどれか。", "a": 2, "c": ["メッセージが改ざんされたかどうかを確認できない", "共通鍵を事前に共有していなくても利用できる", "作成者が送信者本人であることを保証できず、否認を防げない", "公開鍵暗号を用いるため計算が非常に重い"], "e": "MACは共通鍵暗号とハッシュ関数で改ざん検出を行うが、同じ鍵の持ち主がAliceだけとは限らないため作成者が本人であることを保証できず否認を防げない。改ざん検出は可能で(選択肢0誤り)、共通鍵の事前共有が前提(選択肢1誤り)、用いるのは共通鍵暗号(選択肢3誤り)。"},
+{"lec": 7, "q": "認証付き暗号（AEAD）とAES-GCMについて、スライドの説明に合致するものはどれか。", "a": 0, "c": ["機密性と完全性を同時に満たし、TAGにより復号時に改ざん検出が可能", "機密性のみを保証し、改ざん検出は行えない", "TLS1.3ではAEADではない共通鍵暗号が推奨されている", "公開鍵暗号を拡張した方式でGHASHは使わない"], "e": "AEADは暗号化による機密性と改ざんされていないことを保証する完全性を同時に満たし、代表的なAES-GCMはTAGにより復号時の改ざん検出が可能。完全性も満たし(選択肢1誤り)、TLS1.3ではAEADでない共通鍵暗号は廃止(選択肢2誤り)、GCMはCTRモードを拡張しGHASHを求める(選択肢3誤り)。"},
+{"lec": 7, "q": "デジタル署名の仕組みについて、スライドの説明として正しいものはどれか。", "a": 3, "c": ["送信者は公開鍵で署名し、受信者は秘密鍵で検証する", "電子署名はデジタル署名の一方式である", "共通鍵を用いてなりすましを防止する技術である", "送信者が秘密鍵で署名し、受信者が公開鍵で検証してなりすましを確認する"], "e": "デジタル署名は公開鍵暗号とハッシュ関数を用い、送信者が秘密鍵で署名(暗号化)し受信者が公開鍵で復号・検証してなりすましでないことを確認する。署名は秘密鍵で行う(選択肢0誤り)、電子署名は総称でデジタル署名がその一方式(選択肢1は逆)、用いるのは公開鍵暗号(選択肢2誤り)。"},
+{"lec": 7, "q": "PKIと自己署名証明書（オレオレ証明書）についてスライドの説明として正しいものはどれか。", "a": 0, "c": ["PKIは信頼できる第三者（CA）が署名を保証する仕組みで、ルートCAが信頼の起点となる", "自己署名証明書はCAが署名しているため信頼できると表示される", "ルート証明書は通常ユーザが毎回手動でインストールする必要がある", "自己署名証明書は公開鍵を第三者の秘密鍵で署名したものである"], "e": "PKIは信頼できる第三者(CA)が署名を保証する仕組みで、ルートCAが信頼の起点となる。自己署名証明書は第三者を介さず自身の秘密鍵で署名したもので信頼できるCAの署名ではないためエラーになり(選択肢1・3誤り)、ルート証明書は通常OSやブラウザに組み込まれている(選択肢2誤り)。"},
+{"lec": 7, "q": "耐量子暗号（PQC）と量子暗号通信（QKD）の違いについて、スライドの説明として正しいものはどれか。", "a": 2, "c": ["両者は同じ技術であり呼び方が違うだけである", "耐量子暗号は量子力学の性質を使い原理的に盗聴不可能な通信経路を実現する", "耐量子暗号は量子コンピュータが苦手な計算アルゴリズムを採用しソフトウェア的に対処する", "量子暗号通信は格子暗号や多変数多項式暗号を用いる方式である"], "e": "耐量子暗号(PQC)は量子コンピュータが苦手で解読困難な計算アルゴリズム(格子暗号など)を採用しソフトウェア的に対処する。量子暗号通信(QKD)は量子力学の性質で原理的に盗聴不可な通信経路を実現するもので、両者は全く別物(選択肢0誤り)。選択肢1・3は両者の説明が入れ替わっている。"},
+{"lec": 8, "q": "共通鍵暗号と公開鍵暗号における最大のリスクの組み合わせとして、スライドの説明に最も合致するものはどれか。", "a": 0, "c": ["共通鍵暗号は鍵共有(Key agreement)を行う時が最大のリスクであり、公開鍵暗号は秘密鍵が漏洩した場合が最大のリスクである", "共通鍵暗号は秘密鍵の漏洩が最大のリスクであり、公開鍵暗号は鍵共有時が最大のリスクである", "共通鍵暗号も公開鍵暗号も、鍵共有を行う時が最大のリスクである", "共通鍵暗号も公開鍵暗号も、暗号アルゴリズムの計算速度が最大のリスクである"], "e": "共通鍵は相手と共有(鍵共有)する時が最大のリスクとなる。一方、公開鍵暗号は公開鍵の事前共有が前提で秘密鍵を一定期間使い続けるため、秘密鍵が漏洩した場合が最大のリスクとなる。速度や鍵長は課題ではあるがリスクの本質ではない。"},
+{"lec": 8, "q": "RSA鍵共有(公開鍵を使った鍵共有、ハイブリッド暗号)が現在は非推奨とされる主な理由はどれか。", "a": 2, "c": ["共通鍵を平文のまま送るため、通信途中で容易に盗聴されてしまうから", "離散対数問題を解く効率的な方法が発見され、安全性が失われたから", "サーバの秘密鍵が万が一漏洩すると、過去の通信を含め全てのセッション鍵が安全でなくなる恐れがあるから", "共通鍵暗号を一切使わず処理が非常に遅くなるから"], "e": "RSA鍵共有ではランダム生成した共通鍵をサーバの公開鍵で暗号化して送るハイブリッド暗号である。サーバの秘密鍵が漏洩すると全セッション鍵が復号され、過去の通信内容まで危険になるため非推奨。共通鍵は暗号化して送るので平文ではなく、離散対数問題はDHの話である。"},
+{"lec": 8, "q": "Diffie-Hellman(DH)鍵共有について、スライドの説明として正しいものはどれか。", "a": 1, "c": ["事前に共通鍵を安全な経路で共有しておかなければ利用できない方式である", "離散対数問題を活用し、事前の秘密共有無しに盗聴の可能性のある通信路で共通鍵を共有できるが、なりすましには弱い", "盗聴されると秘密の自然数a,bが容易に逆算され、共通鍵Gも計算されてしまう", "認証機能を内蔵しているため、証明書と併用する必要が全くない"], "e": "DHは離散対数問題を活用し、事前の秘密共有無しに盗聴可能な通信路で共通鍵を共有できる。E,Fは盗聴されうるがa,bの逆算は困難でGも計算できない。ただしなりすましに弱く、証明書等による認証と併用する必要がある。楕円曲線版のECDHが現在は主流。"},
+{"lec": 8, "q": "TLSのバージョンと暗号形式に関するスライドの記述として正しいものはどれか。", "a": 2, "c": ["最新はTLS1.2であり、TLS1.3はまだ実用化されていない", "TLSは通信路の暗号化のみを提供し、改ざん検出や相手認証は行わない", "現在TLS1.1以前は非推奨であり、TLSは通信路の暗号化・改ざん検出・証明書による相手認証を提供する。X25519はCurve25519楕円曲線での鍵共有、AES_128_GCMは鍵長128bitのAESをGCMモードで使うことを表す", "X25519はRSAによる鍵共有を表し、AES_128_GCMは公開鍵暗号の一種である"], "e": "TLSは通信路の暗号化/復号、改ざん検出、証明書による相手認証を提供する。TLS1.3は2018年策定で、現在TLS1.1以前が非推奨。ChromeのSecurityタブで見えるX25519はCurve25519での鍵共有、AES_128_GCMは128bitのAESをGCMモードで使うことを示す。"},
+{"lec": 8, "q": "TLSに対する攻撃の説明として、スライドの記述に合致しないものはどれか。", "a": 3, "c": ["ダウングレード攻撃は、意図的に弱いアルゴリズムや古い脆弱なバージョンを使わせる攻撃である", "BEASTやPOODLEは、ブロック暗号CBCモードの脆弱性を突く攻撃である", "HeartBleedは、実装ライブラリOpenSSLの脆弱性である", "POODLEは、CAに不正な証明書を発行させて中間者攻撃を行う攻撃である"], "e": "BEAST/POODLEはブロック暗号CBCモードの脆弱性、HeartBleedはOpenSSL(実装ライブラリ)の脆弱性、ダウングレード攻撃は弱い方式を使わせる攻撃。POODLEはCBCモードの脆弱性でありCAへの不正証明書発行とは別分類なので、この記述が誤り。"},
+{"lec": 8, "q": "電子メールのセキュリティに関して、SMTPの課題と対策の組み合わせとして正しいものはどれか。", "a": 1, "c": ["SMTPには強固な認証機構が組み込まれているため、なりすまし対策は不要である", "SMTPには認証の仕組みがなく誰でも送信できてしまうため、送信元なりすまし対策として送信ドメイン認証(SPF/DKIM/DMARC)が用いられる", "SMTPは通信を常に暗号化しているため、盗聴対策としてPGPやS/MIMEは不要である", "送信元の書き換えは全て不正であるため、送信ドメイン認証で必ず拒否すべきである"], "e": "1982年開発のSMTPには認証の仕組みがなく、なりすましが容易なため送信ドメイン認証(SPF/DKIM/DMARC)で対策する。平文で流れるためエンドツーエンド暗号化(PGP/S-MIME)も必要。メールマガジン等、送信元書き換えが必ずしも不正とは限らない点にも注意する。"},
+{"lec": 8, "q": "送信ドメイン認証の各技術に関するスライドの説明として正しいものはどれか。", "a": 0, "c": ["SPFはDNSを活用して送信元ドメインが真正かをチェックし、DKIMはディジタル署名でなりすましをチェック、DMARCはSPF/DKIMの結果に基づくポリシー制御を行う", "SPFはディジタル署名を用い、DKIMはDNSを活用し、DMARCはメール本文を暗号化する", "DMARCは送信元の真正性を直接チェックし、SPFとDKIMはその結果に基づくポリシー制御を行う", "SPF・DKIM・DMARCはいずれもメール本文をエンドツーエンドで暗号化する技術である"], "e": "SPFはDNSを使ってドメインの真正性を確認、DKIMはディジタル署名でなりすましを検査、DMARCはSPF/DKIMの結果に基づき『何もしない/隔離/拒否』のポリシー制御を行う。本文暗号化はPGP/S-MIMEの役割であり送信ドメイン認証とは別である。"},
+{"lec": 8, "q": "PGPとS/MIMEにおける公開鍵の信用方法の違いとして、スライドの説明に合致するものはどれか。", "a": 2, "c": ["PGPはPKI(CAの署名を信じる)、S/MIMEはWeb of Trust(友達の署名を信じる)", "PGPもS/MIMEもPKI(CAの署名を信じる)方式である", "PGPはWeb of Trust(友達の署名を信じる)、S/MIMEはPKI(CAの署名を信じる)", "PGPもS/MIMEもWeb of Trust(友達の署名を信じる)方式である"], "e": "PGPは友達の署名を信じるWeb of Trust、S/MIMEはCAの署名を信じるPKIで公開鍵を信用する。両者ともメールの暗号化とディジタル署名を提供する技術だが、公開鍵の信用の仕組みが異なる点が問われる。"},
+{"lec": 8, "q": "サイドチャネル攻撃のうち、テンペスト攻撃とも呼ばれるものはどれか。", "a": 3, "c": ["処理時間から鍵を推測するタイミング攻撃", "消費電力の変化を解析する電力解析攻撃", "故意に誤動作させて正常時との差分を解析するフォールト解析攻撃", "機器やケーブル等からの漏洩電波を解析する電磁波解析攻撃"], "e": "サイドチャネル攻撃は装置の物理的特性の変化を観測して鍵などを盗む手法。機器やケーブルからの漏洩電波を解析する電磁波解析がテンペスト攻撃と呼ばれる。タイミング(処理時間)、電力(消費電力)、フォールト(誤動作の差分)はそれぞれ別の手法である。"},
+{"lec": 8, "q": "匿名通信の仕組みTorと、ブロックチェーンのProof of Work(PoW)/51%攻撃に関する説明のうち、スライドの記述として正しいものはどれか。", "a": 0, "c": ["Torは3つのリレー(Guard/Middle/Exit)を任意に選び中継ごとに暗号化するため、各リレーは自区間しか鍵がなく中身を知ることができない", "Torは1つのリレーのみを経由し、そのリレーが発信元と接続先の両方を把握する", "ブロックチェーンでは分岐時に最も短いチェーンが正当とみなされ、Nonceの発見は計算量と無関係である", "51%攻撃(Civil攻撃)は、秘密鍵を窃取して他人のトランザクションを不正発行する攻撃である"], "e": "Torは3つのリレー(GR/MR/ER)を選び中継ごとに暗号化し、各リレーは自区間の鍵しか持たないため中身を知れない。ブロックチェーンは分岐時に最も長いチェーンが正当とされ、Nonce発見は計算量に比例(PoW)。Civil攻撃は51%以上の計算リソース確保で不正チェーンを正当化する攻撃で、秘密鍵の流出とは別である。"},
+{"lec": 9, "q": "Enigma暗号機を1918年に発明した人物と、その暗号方式の組み合わせとして正しいものはどれか。", "a": 1, "c": ["アラン・チューリングが発明した公開鍵暗号機", "アルトゥール・シェルビウスが発明した換字式暗号機", "マリアン・レイェフスキが発明したブロック暗号機", "ベネディクト・カンバーバッチが発明したストリーム暗号機"], "e": "Enigmaは1918年にドイツの技術者アルトゥール・シェルビウスが発明した換字式暗号機で、第2次世界大戦でナチス・ドイツが使用した。"},
+{"lec": 9, "q": "Enigmaの動作原理に関する説明として、スライドの内容と誤っているものはどれか。", "a": 3, "c": ["リフレクターで折り返す構造のため、復号も暗号化と同じ操作でできる", "1文字入力するごとにローターが回転するため、同じ文字を2度打っても同じランプは点灯しない", "暗号鍵はローター配置とプラグボードの配線で変更される", "プラグボードの配線は固定されており暗号鍵には影響しない"], "e": "プラグボードの配線を変更するとシャッフルのされ方が変わり、これも暗号鍵となる。約10対で約150兆通りに及ぶ。"},
+{"lec": 9, "q": "Enigmaの解読において最初に貢献した人物・拠点として正しいものはどれか。", "a": 0, "c": ["ポーランドの数学者マリアン・レイェフスキらが群論などの数学で最初に貢献した", "米国のブレッチリー・パークで言語学者が最初に解読した", "ナチス・ドイツの技術者が自ら解読手法を公開した", "ソ連の物理学者がColossusを用いて最初に解読した"], "e": "最初の貢献者はポーランドの数学者マリアン・レイェフスキら。その解析情報が英・仏に持ち込まれ、英国ブレッチリー・パークでアラン・チューリングらが解析を進めた。これは暗号研究が言語学者から数学者へ転換する契機となった。"},
+{"lec": 9, "q": "アラン・チューリングらが開発した解読装置Bombe(ボンブ)の説明として正しいものはどれか。", "a": 2, "c": ["プラグボードの全配線パターンを瞬時に計算で求める装置", "暗号文を音声に変換して人間の耳で聞き分ける装置", "ローターの初期位置をブルートフォースで探索する装置で、頻出文字列をヒントに正解パターンを推定する", "2500本の真空管を使い世界最初のコンピュータの一つとされる装置"], "e": "Bombeはローターの初期位置(約17,536通り)を約6時間でブルートフォースできる装置。天候の記述や将軍の名前など頻出文字列をヒントに正解パターンを推定した。真空管を使った世界最初のコンピュータの一つはColossusである。"},
+{"lec": 9, "q": "参考として紹介されたLorenz暗号機とColossusに関する説明として正しいものはどれか。", "a": 1, "c": ["Lorenz暗号はEnigmaより弱く、Bombeで容易に解読できた", "ナチス・ドイツ幹部が使ったLorenz暗号にBombeでは追い付かず、英国が1943年に開発したColossusが世界最初のコンピュータの一つとされる", "Colossusはシェルビウスが1918年に発明した換字式暗号機である", "Colossusの存在は開発当初からすぐに一般公開された"], "e": "ヒトラーらナチス幹部はEnigmaより強力なLorenz SZ42を使用。Bombeでは処理が追い付かず、英国が1943年にColossusを開発した。2,500本の真空管を使い世界最初のコンピュータの一つとされるが、軍事・政治的理由で1970年代以降まで極秘とされた。"},
+{"lec": 10, "q": "TCP/IPの階層モデルにおいて、各層の役割の組み合わせとして正しいものはどれか。", "a": 2, "c": ["Ethernet層はアプリデータの暗号化を行う", "IP層はLAN内の機器にデータを送る", "TLS層はアプリデータの暗号化を行う", "TCP層は他のネットワークにデータを送る"], "e": "スライドの階層図では、TLSが「アプリデータの暗号化」、TCPが「データを正しく送る」、IPが「他のネットワークに送る」、Ethernetが「LAN内の機器に送る」を担当する。したがってTLSがアプリデータの暗号化を行うという記述が正しい。他はEthernetとIP、TCPの役割を取り違えている。", "pre": "アプリ(HTTP等) : アプリで使う\nTLS           : アプリデータの暗号化\nTCP           : データを正しく送る\nIP            : 他のネットワークに送る\nEthernet      : LAN内の機器に送る"},
+{"lec": 10, "q": "Ethernet(イーサネット)におけるMACアドレスに関する説明として、スライドの内容に照らして誤っているものはどれか。", "a": 3, "c": ["MACアドレスによりLAN内の宛先を指定してパケットを送信する", "MACアドレスの先頭部分(OUID)から機器のベンダを特定できる", "送信元MACアドレスは自称であり、ソフトウェア的に詐称するのは容易である", "無線LAN(Wi-Fi)はMACアドレスを使わない点で有線Ethernetと原理が全く異なる"], "e": "スライドでは無線LAN(Wi-Fi)も基本原理はEthernetと同じで、LANケーブルの代わりに電波を使うだけと説明されており、MACアドレスを使う点は共通。よって「原理が全く異なる」は誤り。他の3つはいずれもスライド記載どおり正しい。", "pre": "MACアドレス例: 00 0B DB 9B 55 D5\n[ 00 0B DB ] = OUI(ベンダID)\n[ 9B 55 D5 ] = ベンダ内の管理番号"},
+{"lec": 10, "q": "スマートフォンやOSが提供する「プライベートWi-Fiアドレス」「ランダムMAC」などのMACアドレスランダム化機能の主な目的はどれか。", "a": 1, "c": ["通信速度を高速化するため", "接続先ごとにMACアドレスを変え、同一端末の行動追跡(トラッキング)を防ぐため", "MACアドレスフィルタリングを確実に通過させるため", "OUIからベンダを特定しやすくするため"], "e": "スライドでは、接続先毎にWi-Fiアドレスをランダムに変えることで違う端末が接続しているように見せ、行動追跡を防ぐと説明されている。速度やベンダ特定は無関係で、むしろランダム化はフィルタリング通過を意図した機能ではない。"},
+{"lec": 10, "q": "無線LANのセキュリティ対策として挙げられる「ステルスSSID(SSIDの秘匿)」について、スライドが指摘する問題点はどれか。", "a": 0, "c": ["端末側からSSIDを探しに行くため、持ち出し先でもそのSSIDの存在を外部に晒してしまう", "SSIDを隠すと通信内容が一切暗号化されなくなる", "APが常にSSIDを発信し続けるため電波が混雑する", "MACアドレスが固定化され詐称できなくなる"], "e": "ステルスSSIDでは通常と逆に端末側からSSIDを探しに行くため、端末を持ち出すと持出先でもそのSSIDを探そうとし、SSIDの存在を外部に晒すことになる、とスライドは述べている。暗号化の有無やMAC固定化とは関係がない。"},
+{"lec": 10, "q": "Wi-Fiの暗号化方式に関する説明として、スライドの内容に最も合致するものはどれか。", "a": 2, "c": ["WEPは最新の推奨方式であり積極的に使うべきである", "WPA3(2018年登場)はRC4を採用している", "WEPはほぼ暗号化の意味がないレベルで解読容易なため使うべきでない", "WPA2はいまだ脆弱性が一つも見つかっていない"], "e": "スライドではWEP・WPAは非推奨で、特にWEPはほぼ暗号化の意味がないレベルで解読容易なため使うべきでないと明記されている。WPA3はCCMP(AES/CNSA)を用いRC4ではない。またWPA2には2017年発見のKRACKsという脆弱性がある。", "pre": "        登場年   暗号方式\nWEP   1997   RC4\nWPA   2002   TKIP(RC4)/CCMP(AES)\nWPA2  2004   CCMP(AES)/TKIP(RC4)\nWPA3  2018   CCMP(AES/CNSA)"},
+{"lec": 10, "q": "2017年に発見されたWPA2の脆弱性「KRACKs」の攻撃手法として、スライドの説明に合致するものはどれか。", "a": 1, "c": ["総当たりでWEPキーを短時間に解読する", "中間者攻撃により途中のシーケンスを意図的に止め、古い鍵を再利用させる", "SSIDを大量に発信してAPを過負荷にする", "SYNパケットを大量送信して接続を妨害する"], "e": "KRACKsは、WPA2の4-wayハンドシェイクに対し中間者攻撃で途中シーケンスを意図的に止めることで古い鍵を再利用させる脆弱性、とスライドに説明されている。WEP解読やSYNフラッドは別の話題。"},
+{"lec": 10, "q": "IPプロトコルにおける送信元IPアドレスの詐称(IPスプーフィング)について、スライドが述べている性質はどれか。", "a": 2, "c": ["送信元IPアドレスは暗号化されているため詐称は不可能である", "詐称しても返信を正常に受け取れるため攻撃者に有利である", "詐称は容易だが、詐称すると返信を受け取れない", "NATを使えば詐称を完全に防止できる"], "e": "スライドは「送信元IPアドレスは詐称容易(IPスプーフィング)、但し詐称すると返信を受け取れない」と述べている。この性質がSYNフラッド攻撃(返信が偽装先に届かない)にもつながる。他の記述はいずれも誤り。"},
+{"lec": 10, "q": "IPv4のプライベートIPアドレスとNAT(Network Address Translation)に関する説明として、スライドの内容に合致するものはどれか。", "a": 0, "c": ["LAN内はプライベートIPアドレスを使い、外部向け通信はNAT経由でグローバルIPアドレスを共用する", "192.168.0.0〜192.168.255.255はグローバルIPアドレスの範囲である", "NATを使うと自端末が外部からどのグローバルIPで見えているか一切確認できない", "プライベートIPアドレスは世界で一意でなければならない"], "e": "スライドでは、多くのネットワークでLAN内はプライベートIP、外部向けはNAT経由でグローバルIPを共用すると説明される。192.168系はプライベートIP範囲であり、グローバルIPは世界で一意、プライベートIPはLAN内で一意。自端末のグローバルIPは「確認くん」等で容易に確認できる。", "pre": "プライベートIPアドレス範囲:\n 10.0.0.0     - 10.255.255.255\n 172.16.0.0   - 172.31.255.255\n 192.168.0.0  - 192.168.255.255"},
+{"lec": 10, "q": "TCPのコネクション確立(3wayハンドシェイク)とSYNフラッド攻撃に関する説明として正しいものはどれか。", "a": 3, "c": ["3wayハンドシェイクはACK→SYN→ACK+SYNの順で行われる", "SYNフラッドは大量のデータを送りつけて帯域を埋める攻撃である", "SYNフラッドでは攻撃者が正しい送信元IPを使うため返信が届く", "SYNフラッドは送信元IPを詐称して大量のSYNを送り、宛先を応答待ちのまま滞留させるDoS攻撃である"], "e": "3wayハンドシェイクはSYN→SYN+ACK→ACKの順。SYNフラッドはIPアドレスを詐称してSYNを大量送信し、宛先がACK+SYNを返しても届かず応答待ち(タイムアウトまで)のまま次の処理ができなくなるDoS攻撃、とスライドにある。よって選択肢3が正しい。", "pre": "3wayハンドシェイク:\n 送信元 --SYN-->      宛先\n 送信元 <--SYN+ACK--  宛先\n 送信元 --ACK-->      宛先\n 以降データ通信開始"},
+{"lec": 10, "q": "ポートスキャン、TLS1.3、QUICに関する説明のうち、スライドの内容として誤っているものはどれか。", "a": 1, "c": ["ポートスキャンは各ポートにパケットを送り、TCPではSYNを送ってACK+SYNが返れば開いていると判断する。代表ツールにNmapがある", "QUICはTCPを用い、コネクション要求を厳密に行うことで高速化している", "TLS1.3ではClient Hello/Server Helloの段階で鍵共有(key_share)まで実施し、以降はApplication Dataとして暗号化される", "TLSは通信路の暗号化・改ざん検出・証明書による通信相手の認証を提供する"], "e": "QUICはTCPではなくUDPを使用し、コネクション要求をせず送りっぱなしにする、さらにTLSを内包することで高速化する、とスライドにある。よって「TCPを用い、コネクション要求を厳密に行う」は誤り。他の3つはスライド記載どおり正しい。"},
+{"lec": 11, "q": "DNSの名前解決に関する説明として、スライドの内容に合致するものはどれか。", "a": 1, "c": ["権威DNSサーバは、一度取得した名前解決の結果を一定期間キャッシュとして保持する役割を担う。", "キャッシュDNSサーバは、ルートDNSサーバのIPアドレスさえ知っていれば最終的な名前解決が可能である。", "DNSはホスト名(FQDN)とMACアドレスの対応関係を管理するサービスである。", "リゾルバは、jp・ac・iputといった各階層のゾーン情報を自ら保有し、外部に問い合わせずに応答する。"], "e": "スライドでは、キャッシュDNSサーバはルートDNSのIPアドレスさえ知っていれば、ルート→jp→ac→iputと順にたどって最終的な名前解決ができると説明されている。DNSはIPアドレスとホスト名(FQDN)の対応を管理するもので、MACアドレスは扱わない。結果を一定期間保持するのは権威ではなくキャッシュDNSサーバの振る舞いである。"},
+{"lec": 11, "q": "Whoisおよびその管理に関する記述として、スライドの内容に照らして正しいものはどれか。", "a": 2, "c": ["Whoisはホスト名からIPアドレスを求めるためのサービスで、nslookupの代替として使われる。", "Whoisへの情報提供は各国政府によって法律で義務付けられている。", "Whoisはドメイン名やIPアドレスの登録情報を参照でき、情報提供はICANNにより義務付けられている。", "WhoisはWeb上のサービスとしてのみ提供され、Linux等のコマンドとしては利用できない。"], "e": "スライドによれば、Whoisはドメイン名やIPアドレスの登録情報を検索・参照できるサービスで、情報提供はドメインの国際的な管理組織ICANNにより義務付けられている。Webサービスとしてもコマンドとしても提供される。名前解決(ホスト名→IP)を行うのはnslookup等でありWhoisの役割ではない。"},
+{"lec": 11, "q": "DNSへの攻撃に関する説明のうち、攻撃名と内容の組み合わせが正しいものはどれか。", "a": 0, "c": ["DNSリフレクション(amp)攻撃：送信元IPを攻撃対象に偽装して大量のDNSリクエストを送り、大量の応答を攻撃対象に浴びせるDoS攻撃。", "DNSキャッシュポイズニング攻撃：存在しないホスト名を大量に問い合わせて権威DNSサーバをDDoSする攻撃。", "DNS水責め攻撃：偽のDNS応答をキャッシュさせてユーザを偽サイトへ誘導する攻撃。", "DNSリフレクション攻撃：デジタル署名でDNS応答を検証し改ざんを防ぐ技術。"], "e": "リフレクション(amp)攻撃は、送信元IPを偽装したリクエストへの応答を攻撃対象に大量に送り込むDoS攻撃で説明が正しい。存在しないホスト名の大量問い合わせで権威DNSをDDoSするのは水責め攻撃、偽の応答をキャッシュさせて偽サイトへ誘導するのはキャッシュポイズニングであり、選択肢2・3は攻撃名が入れ替わっている。選択肢4はDNSSECの説明である。"},
+{"lec": 11, "q": "DNSのセキュリティ対策に関する記述として、スライドの内容に合致するものはどれか。", "a": 1, "c": ["オープンリゾルバとは、アクセス制限を厳格に行い許可された相手にのみ応答するキャッシュDNSサーバのことである。", "DNSSECは、デジタル署名を用いてDNS応答を検証可能にする技術である。", "DNSを狙った攻撃の多くは権威DNSサーバを直接踏み台にしており、キャッシュDNS側の対策は不要である。", "キャッシュDNSサーバをオープンリゾルバの状態にしておくことが、リフレクション攻撃への有効な対策となる。"], "e": "DNSSECはデジタル署名によりDNS応答を検証可能にする技術である。オープンリゾルバとは、アクセス制限を行わずインターネット上のどこからでも応答してしまう状態のキャッシュDNSサーバのことで、DNSを狙った攻撃の多くはこれを踏み台とするため、適切なアクセス制限の設定が必須とされる。"},
+{"lec": 11, "q": "下表のファイアウォールのルール(上から順に適用)が設定されているとき、送信元10.1.2.3から送信先10.2.3.50のポート80(TCP)へ向かう通信の扱いはどれか。", "a": 0, "c": ["ルール1に一致するため遮断される。", "ルール2に一致するため許可される。", "ルール4に一致するため遮断される。", "どのルールにも一致せず、既定で許可される。"], "e": "ファイアウォール(パケットフィルタリング)のルールは上から順に適用される。送信元が10.1.2.3であるためルール1(10.1.2.3からの通信は全て禁止)に最初に一致し、その時点で遮断が確定する。送信先やポートがルール2の許可条件に合致していても、より上位のルール1が先に適用されるため通過しない。", "pre": "番号  送信元IP    送信先IP   プロトコル  送信先ポート  動作\n 1    10.1.2.3    *          *          *            禁止\n 2    *           10.2.3.*   TCP        80           許可\n 3    *           10.1.*     TCP        22           許可\n 4    *           *          *          *            禁止"},
+{"lec": 11, "q": "ネットワークセキュリティの機器・構成に関する説明として、スライドの内容に合致するものはどれか。", "a": 3, "c": ["IDSは不正な通信パターンを検知するとその通信を遮断し、IPSは検知して管理者へ通知するだけである。", "ハニーポットは、堅牢に見えるサーバをDMZに置いて攻撃者を寄せ付けないようにする仕組みである。", "プロキシサーバは、外部から社内サーバへ届いたリクエストを代理で受け取って応答するサーバである。", "UTMは、複数の異なるセキュリティ製品の機能を統合して集中管理する仕組みである。"], "e": "UTMは複数の異なるセキュリティ機能を統合し集中管理する仕組みで説明が正しい。IDSは検知・通知まで、遮断機能を持つのはIPS(選択肢1は役割が逆)。ハニーポットは脆弱に見えるサーバをDMZに置いて攻撃を誘い手の内を把握する仕組み。プロキシは社内から外部へアクセスする際に代理応答するサーバであり方向が逆である。"},
+{"lec": 11, "q": "VPNおよびTorに関する説明として、スライドの内容に照らして正しいものはどれか。", "a": 0, "c": ["VPNではIPsecやTLSで暗号化トンネルを作るが、暗号化はVPNサーバで終端するためVPNサーバ上ではデータも接続元/接続先も丸見えで、匿名性は担保されない。", "VPNは通信内容を暗号化しないため、接続元と接続先はネットワーク上で常に丸見えである。", "Torは1つのリレーだけを経由して暗号化するため、接続元の追跡は容易である。", "VPNは3つのリレーを任意に選んで中継ごとに暗号化するため、接続先にどのユーザが接続したか追跡が困難になる。"], "e": "VPNはIPsecやTLSで暗号化トンネルを作るが、暗号化はVPNサーバで終端し、そこではデータも接続元/接続先も丸見えとなるため匿名性は担保されない。3つのリレーを任意に選び中継ごとに暗号化して追跡を困難にするのはTorであり、選択肢4はVPNとTorを取り違えている。"},
+{"lec": 11, "q": "デジタルフォレンジックおよびSIEMに関する説明として、スライドの内容に合致するものはどれか。", "a": 2, "c": ["インシデント発生時は、まず被害端末の復旧や初期化を行い、その後に証拠保全を進めるべきである。", "SIEMは単一機器のログのみを扱う仕組みで、複数機器のログを集約する用途には使えない。", "フォレンジックでは復旧や初期化を試みるよりも前に証拠保全をしっかり行うべきであり、ログ分析はその第一歩となる。", "ログ分析は自動化が完了しており、最終的な判断も人ではなくSIEMが下すのが原則である。"], "e": "スライドでは、フォレンジックは復旧や初期化を試みるより前に証拠保全をしっかり行うべきとされ、ログ分析がその第一歩と位置づけられている。SIEMは様々な機器のログを一元的に集約・分析・監視する仕組みである。誤検知や自動化できないものがあるため、最後の判断は「人」が行うとされる。"},
+{"lec": 11, "q": "Proxyサーバのアクセスログを分析する場面に関する記述として、スライドの内容に照らして正しいものはどれか。次のログ行も参考にせよ。", "a": 1, "c": ["ステータスコード404は「成功」を意味し、403は「サーバエラー」を意味する。", "膨大なアクセスログから特定サイトへの通信だけを抽出するにはgrepコマンドが活用でき、上のログのメソッドPOSTはデータの送信を表す。", "HTTPメソッドのGETはデータの送信、POSTはデータの受信を表す。", "ステータスコード200は認証失敗、401はページがないことを表す。"], "e": "膨大なログの絞り込みにはgrepコマンド等が使われ、POSTはデータの送信(GETは受信)を表す。ステータスコードは200が成功、401が認証失敗、403がアクセス権がない、404がページがない、500がサーバエラーであり、選択肢1・4はこれらの意味を取り違えている。選択肢3はGETとPOSTの意味が逆である。", "pre": "192.168.110.168 - - [10/Jun/2019:11:00:03 +0900] \"POST http://c03.example.jp/b3/ HTTP/1.1\" 200 673 806 ..."},
+{"lec": 12, "q": "バッファオーバーフローに関する説明として、スライドの内容に最も合致するものはどれか。", "a": 1, "c": ["ネットワークの通信量を意図的に増やしてサーバをダウンさせる攻撃である", "許容量以上の入力データを与えることで誤作動を起こさせる攻撃で、C/C++で最も悩む問題である", "SQL文を注入してデータベースを不正に操作する攻撃である", "暗号鍵を総当たりで解読する攻撃である"], "e": "バッファオーバーフローは許容量以上の入力データを与えて誤作動を起こさせる攻撃で、C/C++で最も悩む問題とされる。攻撃対象はスタック領域やヒープ領域で、改ざんしたリターンアドレスにより不正プログラムを実行させられる。他はDoS、SQLインジェクション、暗号解読で別物。"},
+{"lec": 12, "q": "OSコマンドインジェクションについて、複数のコマンドを続けて実行させるために使われる区切り文字の組み合わせとして正しいものはどれか。", "a": 0, "c": ["「&&」または「;」", "「/」または「\\」", "「'」または「\"」", "「../」または「./」"], "e": "スライドのDVWA演習では「8.8.8.8 && date」のように&&で、また「;」でも同じ結果が得られるとされ、&&あるいは;で区切れば複数コマンドを続けて実行可能と説明されている。「../」はディレクトリトラバーサル、「'」はSQLインジェクションで使われる。"},
+{"lec": 12, "q": "SQLインジェクションで「' OR 'a'='a」という入力によりログインが成功してしまう理由として正しいものはどれか。", "a": 1, "c": ["パスワードがハッシュ化されずに保存されているから", "'a'='a'は常に正しく、WHERE条件がidやpwに関係なく常に真になるから", "入力文字数が許容量を超えてバッファが破壊されるから", "セッション情報が攻撃者に乗っ取られるから"], "e": "スライドの通り、'a'='a'は常に正しいため、OR条件によってWHERE条件全体が常に真となり、idやpwに関係なくログインが成功してしまう。バッファ破壊はBOF、セッション乗っ取りはCSRFの説明で無関係。"},
+{"lec": 12, "q": "XSS(クロスサイトスクリプティング)の説明として、スライドの内容に合致するものはどれか。", "a": 0, "c": ["攻撃者が用意した悪意のあるスクリプトを利用者の元に送り込んで実行させる攻撃", "親ディレクトリへの横断を許して範囲外のファイルにアクセスする攻撃", "許容量以上の入力でメモリを破壊する攻撃", "OSコマンドをサーバ上で不正に実行させる攻撃"], "e": "XSSはWebアプリの脆弱性を悪用し、悪意あるスクリプトを利用者の元に送り込んで実行させる攻撃。被害にはCookie送信やリダイレクト、情報窃取等がある。他はディレクトリトラバーサル、BOF、OSコマンドインジェクションの説明。"},
+{"lec": 12, "q": "XSSの種類のうち、リクエストに含まれるスクリプト相当の文字列をWebアプリ内部に保存し、保存した文字列をスクリプトとして出力するものはどれか。", "a": 3, "c": ["Reflected XSS", "DOM Based XSS", "UNION XSS", "Stored XSS"], "e": "Stored XSSは入力文字列をWebアプリ内部に保存し、それをスクリプトとして出力する。Reflectedはレスポンスとして即座に反射出力、DOM Basedは正規スクリプトによる動的操作時に意図しないスクリプトを出力。UNION XSSという種類は存在しない。"},
+{"lec": 12, "q": "CSRF(クロスサイトリクエストフォージェリー)に関する説明として正しいものはどれか。", "a": 1, "c": ["許容量以上の入力でリターンアドレスを書き換える攻撃", "脆弱性を持つWebアプリにより、意図しないリクエストを他のサイトから送られてしまう攻撃で、有効なセッションが悪用される", "エラーメッセージからデータベース構造を分析する攻撃", "特殊文字を無害化して入力を安全にする対策手法"], "e": "CSRFは脆弱性を持つWebアプリに対し、意図しないリクエストを他サイトから送られる攻撃。正規サイトのセッション情報を持ったまま接続する(セッションハイジャック)ためリクエストが実行されてしまう。他はBOF、SQLインジェクション、サニタイジングの説明。"},
+{"lec": 12, "q": "「?file=../../secret.txt」のように相対パスを含む入力により、公開範囲外のファイルへアクセスされてしまう攻撃はどれか。", "a": 2, "c": ["OSコマンドインジェクション", "クロスサイトスクリプティング", "ディレクトリトラバーサル", "バッファオーバーフロー"], "e": "ディレクトリトラバーサルは親ディレクトリへの横断(../)を許すことで、意図しないディレクトリ上のファイルへアクセスされる攻撃。他の選択肢はコマンド実行、スクリプト実行、メモリ破壊であり手口が異なる。"},
+{"lec": 12, "q": "脆弱性データベースに関する用語の説明として、スライドの内容に合致するものはどれか。", "a": 3, "c": ["CVEは脆弱性の深刻度を評価する指標である", "CVSSは脆弱性の種類を分類する仕組みである", "CWEは採番された脆弱性の識別子である", "CVSSは攻撃の容易さや影響度から深刻度を評価する指標である"], "e": "CVSS(Common Vulnerability Scoring System)は攻撃の容易さや影響度から深刻度を評価する。CVEは採番された識別子、CWEは脆弱性の種類の分類であり、選択肢の他3つは役割が入れ替わっている。"},
+{"lec": 12, "q": "脆弱性診断とペネトレーションテストの違いとして正しいものはどれか。", "a": 0, "c": ["脆弱性診断は脆弱性ベースで網羅的に洗い出し、ペネトレーションテストは脅威ベースで実際に侵害可能かを確認する", "脆弱性診断は脅威ベースで模擬攻撃を行い、ペネトレーションテストは脆弱性を網羅的に洗い出す", "どちらも脆弱性を網羅的に洗い出す点で全く同じ手法である", "脆弱性診断は物理的な侵入テストのみを指し、ペネトレーションテストはツール診断のみを指す"], "e": "脆弱性診断は脆弱性ベースで網羅的に洗い出す手法、ペネトレーションテストは脅威ベースで現実的なシナリオに基づき実際に侵害可能かを確認する。両者の位置づけを逆にした選択肢や同一視した選択肢は誤り。"},
+{"lec": 12, "q": "WAF(Web Application Firewall)の説明として、スライドの内容に最も合致するものはどれか。", "a": 0, "c": ["Webアプリの脆弱性を悪用した攻撃からWebサイトを保護することに特化したファイアウォール", "ポートスキャンをパケットフィルタリングでブロックする従来型ファイアウォール", "報告された脆弱性を公開する脆弱性データベース", "組織の外部からアクセス可能なIT資産を発見・評価するプロセス"], "e": "WAFはWebアプリの脆弱性攻撃に特化し、データの中身から様々な手法でブロック・無害化する。ポートスキャンのパケットフィルタリングは従来型ファイアウォール、脆弱性公開はCVE等のデータベース、外部資産の発見・評価はASMの説明。"},
+{"lec": 13, "q": "リスクへの対応方針として挙げられる「リスク対応」4種類のうち、保険をかけることで例えられるものはどれか。", "a": 2, "c": ["リスクの低減（軽減）", "リスクの回避（予防）", "リスクの移転（共有、転嫁）", "リスクの保有（受容）"], "e": "保険をかけてリスクを第三者に肩代わりさせるのは「移転（共有、転嫁）」の例。低減は地震補強のように被害を小さくすること、回避は高台移転のように脅威源を避けること、保有は復旧計画を作って備え受け入れることで、いずれも保険とは異なる。"},
+{"lec": 13, "q": "コートニーの法則で述べられている内容として、スライドに記載されているものはどれか。", "a": 1, "c": ["完全なセキュリティは有限のコストで実現できる", "ゼロリスクというものは存在しない", "技術的な問題に対する管理上の解決策は存在しない", "侵害の容認コストより多くの資金を対策に費やすべきである"], "e": "第2定理で「ゼロリスクというものは存在しない」と明記されている。第1定理は完全なセキュリティには無限のコストがかかる（有限ではない）、第3法則は技術的問題には管理上の解決策が存在すると述べる、第2法則は侵害容認コストより多く費やしてはならないと述べており、他の選択肢は逆になっている。"},
+{"lec": 13, "q": "ISMS（情報セキュリティマネジメントシステム）に関する説明として、スライドの内容と合致するものはどれか。", "a": 3, "c": ["自己申告のみで適合性を証明する制度である", "国内規格のみで国際規格は存在しない", "一度構築すれば改善は不要な固定的な枠組みである", "国際規格ISO/IEC 27001として要求事項が策定されている"], "e": "ISMSは国際規格ISO/IEC 27001（JIS Q 27001）として要求事項が策定されている。第三者適合性評価制度（ISMS認証）で適合性を証明するため自己申告のみではなく、Plan-Do-Check-ActionのPDCAサイクルで継続的改善を行うため固定的でもない。"},
+{"lec": 13, "q": "NIST CSF（サイバーセキュリティフレームワーク）に関する説明として、スライドの内容に合致するものはどれか。", "a": 0, "c": ["第2版（CSF2.0）では従来の5機能に「統治」が加わった", "初版から全業界を対象としていた", "Tierは組織の戦略を表すProfileの一部である", "日本のNISCが策定したフレームワークである"], "e": "CSF2.0では「特定・防御・検知・対応・復旧」に「統治」が加わっている。初版1.0は重要インフラ向けで、全業界・組織を対象としたのは2.0から。Tierは評価基準（Tier1部分的〜Tier4適応）でProfileとは別、策定は米国NIST（国立標準技術研究所）である。"},
+{"lec": 13, "q": "組織内で情報セキュリティを統括する責任者を指す役職はどれか。", "a": 1, "c": ["COO（最高執行責任者）", "CISO（最高情報セキュリティ責任者）", "CFO（最高財務責任者）", "CEO（最高経営責任者）"], "e": "CISO（Chief Information Security Officer）が情報管理およびその運用を担当し、情報セキュリティを統括する責任者。COOは執行、CFOは財務、CEOは経営全体の最高責任者であり、情報セキュリティの統括役ではない。"},
+{"lec": 13, "q": "EDR（Endpoint Detection and Response）とアンチウイルスソフト（EPP）の違いに関する説明として、スライドに記載された特徴はどれか。", "a": 2, "c": ["既知のウイルスの定義ファイルによる検知のみを行う", "ネットワーク境界のみを監視する装置である", "端末のログ解析で攻撃を検知し被害状況を特定する", "ゼロデイ攻撃には全く関与しない仕組みである"], "e": "EDRはエンドポイント（端末）で脅威を継続的に監視・対応し、端末のログ解析による攻撃検知や被害状況特定、全端末の可視化を行う。定義ファイルによる既知検知が中心なのはEPP（アンチウイルス）で、EDRはネットワーク全体での端末監視を行い境界のみではない。"},
+{"lec": 13, "q": "2024年7月に発生したCrowdStrike事件の教訓として、スライドが強調している点はどれか。", "a": 0, "c": ["サイバー攻撃ではなくセキュリティソフト自体が脅威になった", "外部からのゼロデイ攻撃が原因であった", "被害はごく一部の家庭用端末に限定された", "アンチウイルスの定義ファイル未更新が原因であった"], "e": "原因はEDR「Falcon」に当日配信された設定ファイルの不具合で、サイバー攻撃ではなくセキュリティソフト自体が脅威になってしまった事例。約850万端末が影響を受け業務システム端末中心に被害が拡大しており、家庭用端末限定でも外部攻撃でもない。"},
+{"lec": 13, "q": "ゼロデイ攻撃に関する説明として、スライドの内容に合致するものはどれか。", "a": 1, "c": ["パッチ配布後に既知の脆弱性を突く攻撃である", "脆弱性発見後、パッチ配布までの間に行われアンチウイルスでは対応困難", "アンチウイルスソフトで確実に防御できる", "無防備な期間を長くすることが対策となる"], "e": "ゼロデイ攻撃は脆弱性発見後、セキュリティパッチ配布までの間に行われる攻撃で、アンチウイルスは既知の攻撃しか対応できないため対応不可。対策はパッチを常に最新化して無防備な期間をなるべく短くすることであり、期間を長くするのは逆。"},
+{"lec": 13, "q": "2009年にロッキード・マーチン社が作成した「サイバーキルチェーン」の7段階の順序として正しいものはどれか。", "a": 3, "c": ["武器化→偵察→配送→攻撃→遠隔制御→インストール→目的達成", "偵察→配送→武器化→インストール→攻撃→遠隔制御→目的達成", "偵察→武器化→攻撃→配送→インストール→目的達成→遠隔制御", "偵察→武器化→配送→攻撃→インストール→遠隔制御→目的達成"], "e": "サイバーキルチェーンは「偵察→武器化→配送→攻撃→インストール→遠隔制御→目的達成」の7段階。偵察・武器化から始まり、配送や攻撃を経て最後に目的達成に至る順序で、他の選択肢は段階の順序が入れ替わっている。"},
+{"lec": 13, "q": "危機のレベルを表す用語を、被害程度が小さいものから大きいものへ並べた順序として、スライドに合致するものはどれか。", "a": 0, "c": ["incident → emergency → crisis → disaster → catastrophe", "incident → crisis → emergency → catastrophe → disaster", "emergency → incident → disaster → crisis → catastrophe", "crisis → incident → emergency → disaster → catastrophe"], "e": "スライドでは被害程度が小さく発生頻度が高い順に incident（事案）→ emergency（緊急事態）→ crisis（危機）→ disaster（災害）→ catastrophe（大惨事）と並ぶ。対応の基本はincidentで、規模が大きくなるほど組織間連携が重要になる。"},
+{"lec": 14, "q": "図上演習(机上演習/Tabletop Exercise)の進め方として、スライドで正しいとされているものはどれか。", "a": 2, "c": ["あらかじめ与えられたストーリー(台本)に沿って参加者が忠実に演じる", "実際の機材を用いて特定技能を反復して身につけることを主目的とする", "刻々と変化する状況を付与していくことで、具体的な災害／インシデントの状況をイメージさせ、対応や意思決定の力を鍛える", "合否という測定可能な結果を得ることを唯一の狙いとする"], "e": "机上演習は、決まった台本を演じるのではなく、刻々と変化する状況を付与して対応・意思決定力を鍛えるもの。合否を狙うのはTest、反復で技能を身につけるのはDrillであり、机上演習の主目的ではない。"},
+{"lec": 14, "q": "JIS Q 22328に基づく演習・訓練の分類で、「期待され測定可能な合否の結果を得ることを狙いとした演習」を指す用語はどれか。", "a": 3, "c": ["Drill（反復訓練）", "Training（教育訓練）", "Exercise（演習）", "Test（試験）"], "e": "合否という測定可能な結果を狙うのはTest。Drillは特定技能を繰り返し練習する活動、Trainingは知識・技能の学習育成、Exerciseは組織内でパフォーマンスを把握・改善するプロセスを指す。"},
+{"lec": 14, "q": "インシデント対応における時系列の記録(タイムライン)について、スライドの記述として誤っているものはどれか。", "a": 3, "c": ["「いつ、何が起きたか(何をしたか)」を把握することは極めて重要である", "対応の抜け・漏れを防ぐための拠り所となり、収束後の事後報告や振り返りにも必要である", "リアル災害において災害対策本部等で書かれる時系列記録は「クロノロジ―」と呼ばれる", "記録は各自が任意で残せばよく、記録係をあえて決めない方が柔軟に対応できる"], "e": "スライドは「対応チーム内で記録係を明確に決めておく」としており、記録係を決めない方がよいというのは誤り。他の3つはいずれもタイムラインの重要性やクロノロジーの説明として正しい。"},
+{"lec": 14, "q": "Mica Endsleyが提唱した状況認識(Situation Awareness)の3レベルの順序として正しいものはどれか。", "a": 0, "c": ["Perception(知覚：何かが起こったと気づく) → Comprehension(理解：現象を特定する) → Projection(予測：今後の推移を予測する)", "Comprehension(理解) → Perception(知覚) → Projection(予測)", "Projection(予測) → Comprehension(理解) → Perception(知覚)", "Perception(知覚) → Projection(予測) → Comprehension(理解)"], "e": "Endsleyのモデルは、Lv1知覚(気づく)→Lv2理解(現象を特定)→Lv3予測(今後を予測)の順で認識を高めて意思決定につなげる。他の選択肢は順序が入れ替わっている。なお関係者全体で状況認識を統一するのがCOP。"},
+{"lec": 14, "q": "アイゼンハワーマトリクスに関するスライドの説明として、最も適切なものはどれか。", "a": 1, "c": ["緊急かつ重要なタスクは常に発生するものであり、その存在は良好な時間管理の証である", "「緊急かつ重要」が生じるのは時間管理に失敗していることを意味し、緊急のものは重要でなく、重要なものは決して緊急ではない", "緊急でないが重要なタスクは「やらない」を選ぶのが基本方針である", "すべてのタスクは緊急度のみで優先順位を決めるべきである"], "e": "アイゼンハワーの言葉どおり、緊急なものは重要でなく重要なものは緊急でない。「緊急かつ重要」の発生は時間管理の失敗を意味する。緊急でないが重要なものは「いつやるか決める」であり、やらないのは緊急でも重要でもないもの。"},
+{"lec": 14, "q": "OODAループとPDCAサイクルの違いに関するスライドの記述として正しいものはどれか。", "a": 2, "c": ["OODAとPDCAは対立概念であり、どちらか一方だけを採用しなければならない", "OODAはObserve(観察)・Orient(状況判断)・Decide(決定)・Assess(評価)の4段階からなる", "PDCAは計画と実績の差分をチェックしながら改善する全体管理向き、OODAは状況を観察し先を見据えて方向づける現場対応向きである", "PDCAは現場対応向き、OODAは全体管理向きとされている"], "e": "スライドはPDCAを全体管理向き、OODAを現場対応向きとし、両者は対立概念ではなく相互補完の関係とする。OODAはObserve/Orient/Decide/Act(Assessではない)。選択肢4は役割が逆。"},
+{"lec": 14, "q": "振り返り(After Action Review, AAR)の目的として、スライドで示されているものはどれか。", "a": 0, "c": ["目指したことと現実の対応との差から教訓を引き出すこと(良かったことも悪かったことも教訓になる)", "対応がまずかった担当者を特定し、責任を追及する犯人捜しを行うこと", "うまくいった対応の武勇伝を共有して士気を高めることに専念すること", "結果オーライであれば振り返りは不要とし、次に進むこと"], "e": "AARは反省会や犯人捜し・武勇伝の場ではなく、目指したことと現実の差から教訓を引き出すのが目的で、良い点も悪い点も教訓になる。結果オーライで済ませず学び続けることが成長につながるとされる。"},
+{"lec": 15, "q": "AIそのものを騙す攻撃として、スライドで「深刻化する脅威」の例に挙げられているものはどれか。", "a": 2, "c": ["ブルートフォース攻撃と辞書攻撃", "バッファオーバーフローとXSS", "敵対的サンプルとプロンプトインジェクション", "ポートスキャンとDNSキャッシュポイズニング"], "e": "スライドでは、AIそのものを騙す攻撃の例として「敵対的サンプル」と「プロンプトインジェクション」が挙げられている。また生成AIは脆弱性発見・攻撃の高速化にも悪用される。"},
+{"lec": 15, "q": "「新しい技術が新しい脆弱性を生む」において、2000年代の全文検索技術（Google）が生んだ問題として挙げられているものはどれか。", "a": 1, "c": ["量子コンピューティングによる暗号の危殆化", "SEOによる検索結果の恣意的操作とフィルターバブル", "生成された文章の著作権問題", "ボットネット化とセンシング情報の窃取"], "e": "2000年代の全文検索技術では、SEOによる検索結果の恣意的操作（カモにされる）や、パーソナライズ化によるフィルターバブル（理解の偏り・社会の分断）が問題とされた。著作権や量子は別項目。"},
+{"lec": 15, "q": "スライドで示された「重要なこと」の3つの柱の組み合わせとして正しいものはどれか。", "a": 0, "c": ["知る・備える・立ち向かう", "予防・検知・復旧", "機密性・完全性・可用性", "収集・処理・分析"], "e": "スライド「重要なこと」では、セキュリティの本質として「知る」「備える」「立ち向かう」の3つが挙げられている。"},
+{"lec": 15, "q": "「知る」ということに関して、スライドで陥ってはならないとされている状態はどれか。", "a": 3, "c": ["Known Knowns（知っていると知っている）", "Known Unknowns（知らないと知っている）", "Unknown Unknowns（知らないと知らない）", "Unknown Knowns（知っていると知らない）"], "e": "「知る」ということでは、不都合な情報から目を背けず、目を背けている状態である「Unknown knowns」に陥らないことが重要とされている。"},
+{"lec": 15, "q": "スライドで説明されるホワイトハッカーの役割・資質として最も適切なものはどれか。", "a": 1, "c": ["味方の視点で敵の弱点を探し、攻撃を主導する", "敵の視点で味方の弱点を発見する（知彼知己）と高い倫理観を併せ持つ", "情報セキュリティの専門家と完全に同義で、他技術は不要である", "違法な手段を用いてでも脆弱性を実証することが求められる"], "e": "ホワイトハッカーは敵の視点で味方の弱点を発見する（すなわち知彼知己）存在であり、ダークサイドに堕ちない高い倫理観が求められる。専門家と同義ではないが幅広い技術知識は必須。"},
+{"lec": 15, "q": "CTF（Capture The Flag）のジャンルとその説明の組み合わせとして、スライドの記載に合致するものはどれか。", "a": 2, "c": ["Pwn ＝ 暗号", "Forensics ＝ Web脆弱性攻撃", "Reversing ＝ リバースエンジニアリング（バイナリ解析）", "Crypto ＝ その他（雑学・OSINTなど）"], "e": "スライドの一覧では、Reversingはリバースエンジニアリング（バイナリ解析）。Pwnは脆弱性攻撃、Forensicsはイメージファイル解析、Cryptoは暗号、MiscがOSINT等の「その他」に対応する。"},
+];
+
+/* ============================================================
+   模擬問題（練習問題画像より作成・授業スライド問題とは別枠）
+   lec:"M"　tag=分野ラベル　pre=図表/ログ(任意)
+   ============================================================ */
+const MOCK = [
+{lec:"M",tag:"DNS",q:"DNSキャッシュポイズニング攻撃に関する説明として適切なものはどれか？",
+ a:1,c:[
+  "攻撃対象のサービスを妨害するために、攻撃者がDNSサーバを踏み台に利用して再帰的な問合せを大量に行う。",
+  "ホスト名・ドメイン名が正しくても、不正なIPアドレスのサイトに誘導される恐れがある。",
+  "権威DNSサーバに膨大な負荷が集中することで、世界中のサイトアクセスに影響を及ぼす。",
+  "攻撃を防ぐ有効な手段は、キャッシュDNSサーバをオープンリゾルバとして運用することである。"],
+ e:"DNSキャッシュポイズニングはキャッシュDNSサーバに偽の名前解決情報を覚え込ませる攻撃。正しいドメイン名でも不正なIPへ誘導される（正解2）。1はDNSリフレクション/amp攻撃の説明、4のオープンリゾルバはむしろ攻撃を受ける原因で誤り。"},
+
+{lec:"M",tag:"CSIRT演習",q:"演習／本番によらず、インシデントハンドリングの際に必要な項目として最も適切なものはどれか？",
+ a:0,c:[
+  "起きた事象を知覚するだけでなく、原因を理解し、先の展開を予測するレベルまで必要である。加えて、関係する他のステークホルダとも共有しておくことが、組織を跨った効果的な対応を進める上で重要である。",
+  "事後の振り返り（AAR）は、信賞必罰の観点から、対応における責任関係を明確にすることが目的である。",
+  "一度設定した対応計画は滅多なことでは変更が利かないため、策定の際に細心の注意が必要である。",
+  "タイムラインは「いつ・誰が・何を行ったか」を時系列に記録するものであり、CISOにその内容を全て報告するために必要である。",
+  "危機管理広報の要点は、対応をなるべく部下に任せ、必要以上に言質をとらせないように報告内容を絞り込むべきである。"],
+ e:"状況認識とCOP（Common Operational Picture＝共通状況図）の共有が要点。事象の知覚→原因理解→先の展開予測へ深め、ステークホルダと共有することが組織横断対応の鍵（正解1）。AARは責任追及ではなく学習が目的。"},
+
+{lec:"M",tag:"ペンテスト",q:"ポートスキャンに関する以下の説明のうち、正しくないものを選びなさい。",
+ a:1,c:[
+  "ポートスキャンの実行に高度な知識は必要なく、容易に入手可能なツールもある。",
+  "攻撃の準備段階で実行され、パスワードが脆弱なアカウントが抽出される可能性がある。",
+  "ポートスキャンは短時間で実行できてしまうが、IDSなどで検知は可能である。",
+  "攻撃対象のWebサーバに対して、Webアクセス以外の侵入経路がないかを確認するために実行される。",
+  "ポートスキャンが実行されたからといって、攻撃が目的とは限らない。"],
+ e:"ポートスキャンは開いているポートや稼働サービスを調べる行為で、脆弱なパスワードのアカウントを抽出するものではない（それはブルートフォース／辞書攻撃）。よって2が誤り。ポート毎にTCP/UDP通信が流れるためIDS等で検知可能。"},
+
+{lec:"M",tag:"ファイアウォール",q:"以下のテーブルで設定されたファイアウォールがあった場合に、通信が成功するのはどのパターンか？",
+ pre:"番号 送信元IP     送信先IP    プロトコル 送信元ポート 送信先ポート 動作\n 1   *            10.2.3.*    TCP        *           80          許可\n 2   10.1.2.3     *           *          *           *           禁止\n 3   *            10.1.*      TCP        *           22          許可\n 4   *            *           *          *           *           禁止\n※ルールは上から順に適用（最初に合致したものを採用）",
+ a:4,c:[
+  "10.1.2.4 から 10.2.3.4 へのHTTPS通信",
+  "選択肢のいずれも通信が通らない",
+  "10.1.2.4 から 10.2.3.4 へのSSH通信",
+  "10.1.2.3 から 10.1.5.6 へのSSH通信",
+  "10.1.2.3 から 10.2.3.4 へのHTTP通信"],
+ e:"ルールは上から順に評価。10.1.2.3→10.2.3.4のHTTP(宛先ポート80)はルール1(宛先10.2.3.*・ポート80→許可)に最初に合致し許可される（正解5）。HTTPS(443)/SSH(22)はルール1に非該当で後続の禁止に落ちる。10.1.2.3が送信元の他通信はルール2で禁止。"},
+
+{lec:"M",tag:"多層防御",q:"多層防御の考え方について、最も適切でないものはどれか？",
+ a:3,c:[
+  "サイバーキルチェーンに基づき、「配送」「攻撃」「インストール」「遠隔制御」の各段階ごとに対策を設けることで、攻撃者に目的達成されるリスクを減らす。",
+  "内部犯による情報漏洩を防ぐため、暗号化とアクセス権設定で権限のないユーザのアクセスを制限しつつ、EDRによりクライアント上での不審な行動や通信の監視を行う。",
+  "業務停止を防ぐため、UTMの導入でネットワークからアプリケーションまで一元的なセキュリティ管理を実施しつつ、万が一に備えてデータのバックアップを取っておく。",
+  "標的型メール対策として、複数の製品ベンダのウイルス対策ソフトを1台の端末に同時にインストールし、定義ファイルの抜け漏れに備える。"],
+ e:"複数ベンダのウイルス対策ソフトを同一端末に同時導入すると、互いを脅威と誤検知するなど競合し、かえって不具合や保護低下を招く（正解＝最も不適切は4）。多層防御は異なる層で守るのが趣旨で、同種製品の重複ではない。"},
+
+{lec:"M",tag:"ISMS",q:"ISMSについての以下の説明において、正しいものを選びなさい。",
+ a:2,c:[
+  "ISMS認証は第三者による適合性評価であり、利害関係者でなければ、どの組織に認証機関として依頼してもよい。",
+  "ISMSのPDCAサイクルにおけるC（Check）は、実際にインシデントが発生した際に実施される。",
+  "ISMS認証の取得は、セキュリティ対策を企業価値向上への投資として取り組む一つの手段である。",
+  "ISMSは国際規格であり、認証を取得することで、国際的なハッキング集団による攻撃ターゲットになりにくくなるメリットがある。",
+  "NISTサイバーセキュリティフレームワークは、ISMSの具体的な実施形態の一つである。"],
+ e:"ISMS認証取得はセキュリティを企業価値向上への投資と位置づける手段（正解3）。C（Check）は定期的な監視・レビューで随時行い、インシデント時だけではない。認証取得と攻撃対象になるかは無関係。"},
+
+{lec:"M",tag:"CSIRT",q:"CSIRTの活動であるインシデントレスポンスにあたる活動として最も適切なものはどれか？",
+ a:0,c:[
+  "社内でマルウェアの感染報告を受けた際に、該当端末を早急に確保し、その時点の状態をなるべく保ったまま専門家に分析を依頼する。",
+  "社内システムで使われているソフトウェア類の脆弱性情報をチェックし、使用部署に情報提供したり、必要に応じてセキュリティパッチの適用を要請する。",
+  "IDSから不審な通信に関するアラームが通知されたら、まず事実確認を行い、影響度や優先度を一次評価する。",
+  "管理しているサーバやネットワーク機器に異常な通信等が発生していないかを常時監視し続け、異常を検知したら関係部署へ通知する。"],
+ e:"インシデントレスポンス（事後対応）は実際に発生したインシデントへの対処。感染端末を状態保全して専門家へ分析依頼するのは典型例（正解1）。2は脆弱性管理（事前）、3はトリアージ（検知直後の一次評価）、4はSOCの常時監視。"},
+
+{lec:"M",tag:"脆弱性対策",q:"以下の脆弱性対策のうち、適切なものはどれか？",
+ a:2,c:[
+  "バッファオーバーフローを防ぐため、CやC++を使わずPythonでプログラミングを行う。",
+  "SYNフラッドによるDoS攻撃を防ぐために、WAFを使用する。",
+  "SQLインジェクションを防ぐため、入力された記号類を別の文字に置き換えるなどでSQL文として実行できない形に変換する。",
+  "クロスサイトスクリプティングを防ぐため、通信路をTLSで暗号化する。",
+  "コマンドインジェクションを防ぐため、OSコマンドを呼び出す処理を管理者(root)権限で実行させるようにする。"],
+ e:"SQLインジェクション対策はエスケープ処理やプレースホルダで、入力をSQL文として実行させないこと（正解3）。SYNフラッド対策はWAFではなくIDS/IPS等、XSSはTLSでは防げない、コマンドインジェクションでroot実行はむしろ被害を拡大させる。"},
+
+{lec:"M",tag:"ログ分析",q:"Webサイトの入力データのログを分析したところ、以下の記録が見つかった。想定される攻撃として適切なものを選べ。",
+ pre:"00:10:11 GET /item.php?language=ja&country=JP&page=<script>a...\n00:10:12 GET /item.php?A=execute&U=&CF=search-simple&nv=ie&S...\n00:11:20 GET /item.php?'%20and%20char(124)%2Buser%2Bchar(124...\n00:11:25 GET /work/data.asp?fname=abcdef';DROP TABLE Drop_tm...",
+ a:1,c:[
+  "クロスサイトスクリプティングによりサーバを一時的にアクセス不能にし、その隙にSQLインジェクション攻撃で情報の窃取を行ったと推定される。",
+  "まずはクロスサイトスクリプティングの脆弱性が存在するかを試し、続いてSQLインジェクションによる情報の窃取を試みている。",
+  "クロスサイトスクリプティング、SQLインジェクションによる攻撃が続けて仕掛けられているが、いずれも失敗に終わっている。",
+  "正常なユーザ入力であり、攻撃とは無縁である。",
+  "Webサイトにポートスキャンをかけ、侵入できる経路を探している。"],
+ e:"ログ前半に <script>（XSSの試行）、後半に ' and char(...) や DROP TABLE（SQLインジェクション）が見られる。時系列でXSSの脆弱性を試した後、SQLインジェクションで情報窃取を試みている（正解2）。成否はログからは断定できない。"},
+
+{lec:"M",tag:"CSIRT",q:"CSIRTに関する説明として最も適切なものはどれか？",
+ a:1,c:[
+  "組織のセキュリティ対策を統括し、情報管理およびその運用を担当する責任者",
+  "企業・組織内に設置され、セキュリティインシデントに関する報告を受け取り、調査し、対応活動を行う組織の総称",
+  "セキュリティ対策を実施するにあたり、方針・基準・手順等を定めるための共通的な枠組み",
+  "インターネットに関する技術文書を作成し、標準化のための検討を行う組織"],
+ e:"CSIRT（Computer Security Incident Response Team）はインシデント対応を担う組織の総称（正解2）。1はCISO、3はセキュリティポリシー／フレームワーク、4はIETF等の標準化組織の説明。"},
+
+{lec:"M",tag:"OECD8原則",q:"OECD個人情報保護の8原則の各項目を説明した内容として、適切なものはどれか？",
+ a:2,c:[
+  "【利用制限】その滅失・不正アクセス・き損・不正利用・改ざん・漏えい等のリスクに対し、合理的な安全保護措置を講ずるべきである。",
+  "【収集制限】自己に関するデータに異議を申し立て、それが認められた場合はデータを消去・訂正・完全化・改めさせる権利がある。",
+  "【データ内容】利用目的の範囲内で利用し、かつ利用目的の達成に必要な範囲内で正確・完全・最新の内容に保つべきである。",
+  "【安全保護】適法かつ公正な手段によってデータ主体に通知し、又は同意を得た上で収集すべきである。",
+  "【個人参加】個人データの存在・性質に応じて、主要な利用目的とともにデータ管理者の識別や所在地を認識できる方法で示すべきである。"],
+ e:"ラベルと説明の対応を問う問題。3の【データ内容】＝正確・完全・最新に保つ、が正しい対応（正解3）。1は本来【安全保護】、2は【個人参加】、4は【収集制限】、5は【公開】の説明で、それぞれラベルがずれている。"},
+
+{lec:"M",tag:"安全と安心",q:"「安心であるが安全でない」ものはどれか？",
+ a:3,c:[
+  "セキュリティ対策にかけるお金がないので、攻撃を受けるかは運を天に任せてノーガード戦法で行く。",
+  "社内のセキュリティ対策について、ツールを導入するだけでなく、運用ルールの整備や見直しも定期的に行っている。",
+  "マイナンバーカードによる保険証は、別人データの誤登録問題が報道されており、従来の保険証からの切り替えは望ましくない。",
+  "ランサムウェアの被害に遭った。2次被害の報告も来ておらず、翌日にはデータ復旧に成功したので、速やかにサービスを再開した。"],
+ e:"4は復旧できて安心しサービスを再開したが、侵入経路の特定や再感染・情報流出の確認をしておらず「安全」は担保されていない＝安心だが安全でない（正解4）。1は安全でも安心でもない、2は安全かつ安心に近い、3は安心できていない側。"},
+
+{lec:"M",tag:"CIA",q:"a〜cはセキュリティインシデントの例である。それぞれに直接関係する情報セキュリティの3要素の組み合わせとして正しいものはどれか。",
+ pre:"a. 新製品発表会の2週間前に製品情報が何者かによりネットに拡散され、\n   それを見たライバル社が予想より早く対抗製品を発表してきた。\nb. 自社の製品レビューサイトが改ざんされ、事実無根の低評価コメントで溢れた。\nc. サーバがランサムウェアに感染し、データを取り出せなくなった。",
+ a:4,c:[
+  "a.完全性、b.可用性、c.機密性",
+  "a.機密性、b.可用性、c.完全性",
+  "a.可用性、b.完全性、c.機密性",
+  "a.可用性、b.機密性、c.完全性",
+  "a.機密性、b.完全性、c.可用性",
+  "a.完全性、b.機密性、c.可用性"],
+ e:"a＝情報が漏洩・拡散（機密性）、b＝改ざん（完全性）、c＝データを取り出せない（可用性）。よって「a.機密性、b.完全性、c.可用性」（正解5）。"},
+
+{lec:"M",tag:"Known Knowns",q:"「Unknown Knowns（知っていると知らない＝目を背けていること）」にあたるものはどれか？",
+ a:2,c:[
+  "同業者がランサムウェアの被害に遭ったようだ。自社も狙われる可能性が高いため、侵入経路や攻撃の詳細について情報収集を進める必要がある。",
+  "画期的な数学理論が発表され、現在使っている暗号システムが無力化されることが明らかになった。",
+  "自社の機密情報の漏えいが発覚した。持ち出したのはサーバ管理を委託している業者の社員だった。委託先業者が管理者権限を悪用することは想定していなかった。",
+  "Windows10のサポート期限が近づいている。パッチ適用を継続するため、早急にWindows11へのアップグレードを進める必要がある。"],
+ e:"Unknown Knowns＝わかっていたのに目を背けていたこと。委託先が権限を悪用しうることは想定できたのに直視していなかった例（正解3）。1・4はKnown Knowns（把握して対処）、2はUnknown Unknowns（想定外）寄り。"},
+
+{lec:"M",tag:"OSINT",q:"OSINT（公開情報を集め・分析して得られるインテリジェンス）にあたるものはどれか？",
+ a:3,c:[
+  "最近わが社に届く迷惑メールが急増している。アドレスの誤りが少ないので、社員の名簿情報がどこかに漏洩しているのではないかと疑っている。",
+  "xx時xx分、地震がありました。震源は千葉県沖でマグニチュード5.0。各地の震度は…",
+  "今日は朝から雨が降っている。先ほど大雨洪水警報が発令されたとのニュース速報が表示された。",
+  "新聞の首相動静を見ると、最近は観光業界の関係者との会合が多そうだ。インバウンド需要の減退が懸念されることもあり、今後、円安への対策に本腰を入れる可能性が高そうだ。",
+  "ワクチンを打つと体内に長期間成分が残り、遺伝情報が書き換えられる。",
+  "ライバルA社の部長が昔からの友人で、先日一緒に飲んでいたら酔った勢いで来月発表予定の新製品の情報をポロっと教えてくれた。"],
+ e:"OSINTは公開情報（新聞など）を収集・分析して洞察を導くもの。4は公開の首相動静から今後の政策を推定しており、分析（インテリジェンス）に至っている（正解4）。2・3はデータ／インフォメーション段階、5は根拠のないデマ、6はHUMINT（人からの情報）。"},
+
+{lec:"M",tag:"ランサムウェア",q:"ランサムウェアに関する説明について適切なものはどれか？",
+ a:0,c:[
+  "PC上の業務データなどの情報資産が被害を受けるだけでなく、重要インフラの機能停止など物理的な被害が生じる恐れがある。",
+  "フィッシングメールを介して無差別に配布されるものなので、組織の迷惑メール対策がしっかりしていれば感染を防ぐことができる。",
+  "作成には極めて特殊な技術が必要なので、攻撃者はほぼ全て国家レベルのハッカー集団である。",
+  "感染してしまったら、ビットコイン等で身代金を払う以外の対応策はない。"],
+ e:"ランサムウェアはデータ被害に留まらず、重要インフラ停止など物理的被害にも波及しうる（正解1）。VPN等メール以外の侵入経路も多く、RaaSにより特殊技術がなくても攻撃可能、身代金を払っても復旧保証はなくバックアップからの復旧等の対策がある。"},
+{lec:"M",tag:"脅威と脆弱性",q:"脅威と脆弱性の関係について最も適切なものはどれか？",
+ a:2,c:[
+  "OSやソフトウェアを最新化しておくことは、脅威を低減する手段の一つである。",
+  "データを複数のサーバに分散させることは、脆弱性を低減する手段の一つである。",
+  "ログイン時のパスワードを複雑なものにすることは、脆弱性を低減する手段の一つである。",
+  "セキュリティ責任者を指名することは、脅威を低減する手段の一つである。"],
+ e:"リスク＝脅威×脆弱性×資産。脆弱性（自分側の弱点）を減らす施策の例が、パスワードを複雑にすること（正解3）。脅威は攻撃者側の要因でこちらから直接は減らせない。1のOS最新化・4の責任者指名は脆弱性低減の施策なのに『脅威を低減』と誤って説明。2のデータ分散は冗長化による可用性向上であり脆弱性低減とは言い切れない。"},
+
+{lec:"M",tag:"標的型攻撃",q:"標的型攻撃の説明として適切なものはどれか？",
+ a:2,c:[
+  "攻撃への対策は、知らない相手からの初見のメール、怪しい日本語のメールに注意する、添付ファイルを開かない、ということに尽きる。",
+  "マルウェアや不正URLを仕込んだメールを不特定多数のユーザに送付し、その中で引っかかったユーザから様々な情報資産を窃取することを目的とした攻撃である。",
+  "メールによる攻撃に加え、攻撃対象者がよく訪れるWebサイトを改ざんして待ち構えるタイプのものも含まれる。",
+  "役職の高い社員が攻撃の主たるターゲットである。",
+  "標的型攻撃により狙われ被害を受ける情報資産は、本人もしくは顧客等の個人情報に限られる。"],
+ e:"標的型攻撃(APT)は特定の個人・組織を狙う持続的な攻撃で、標的型メールに加え『水飲み場攻撃』（対象がよく訪れるWebサイトを改ざんして待ち構える）も含まれる（正解3）。1は対策を過小評価、2は不特定多数へのばらまき型で標的型ではない、4は役職の高い人に限らない、5は被害資産は個人情報に限られない。"},
+
+{lec:"M",tag:"ソーシャルエンジニアリング",q:"ソーシャルエンジニアリングにあたるものはどれか？",
+ a:1,c:[
+  "ボットネットを使ってDDoS攻撃を行い、ライバル社のWebサイトを停止に追い込む。",
+  "部長に頼まれたと偽って、部長のパスワード初期化をシステム担当者に電話で依頼する。",
+  "会員制サイトに適当なID・パスワードを入力してみたらログインできてしまった。",
+  "ダークウェブで入手したマルウェアをメールに添付してターゲットユーザに送りつける。"],
+ e:"ソーシャルエンジニアリングは人間の心理的な隙や行動のミスにつけ込んで情報を得る手法。上役になりすまして電話で操作を依頼するのが典型例（正解2）。1はDDoS、3は総当たり/推測、4はマルウェア送付で、いずれも技術的な攻撃。"},
+
+{lec:"M",tag:"エコーチェンバー",q:"エコーチェンバーの説明として適切なものはどれか？",
+ a:2,c:[
+  "YouTube動画を見ているうちにおすすめ動画が気になって次々と視聴していた結果、気がつけば半日くらい経っていて、最初に見始めた目的も何だったかわからなくなっていた。",
+  "コロナワクチンの陰謀論に興味を持ち、検索して読み漁っているうちに、実はその情報が正しく、支持する人が主流だと錯覚するようになった。",
+  "ある俳優のアンチファンがネット掲示板に立てたスレッドにて、最初は演技のダメ出し程度の話題で盛り上がっていたのが、いつしか人格否定やレッテル貼りの書き込みが増え、最終的には殺害予告を書き込んで逮捕される人まで出てしまった。",
+  "最近入ったSNS上のコミュニティでは、自身と全く経歴や立場の違う人が集っており、時には議論を交わしつつも日々新しい刺激を受けている。"],
+ e:"エコーチェンバーは似た意見の人々が集まり交流・共感し合うことで特定の意見や思想が増幅する現象。掲示板で似た者同士の書き込みが過激化する例が該当（正解3）。2は自分好みの情報ばかりに触れ主流だと錯覚する『フィルターバブル』寄りの現象、1は動画への没入、4は多様な意見に触れる健全な状態。"},
+
+{lec:"M",tag:"多要素認証",q:"多要素認証の実装として、適切でないものを選びなさい。",
+ a:4,c:[
+  "スマホ上のサービスでパスキー認証を使用した。",
+  "店頭でクレジットカードで買い物をしたら、暗証番号の入力を求められた。",
+  "PCでGoogleにログインしようとしたら、スマホにSMSでパスコードが送られてきたのでそれを入力した。",
+  "マイナンバーカードを用いてネット上で確定申告を実施した。",
+  "スマホの画面ロックを解除する際に、マスクをしていて顔認証が失敗したので、代わりにパスコードを入力して画面ロックを解除した。"],
+ e:"多要素認証は知識・所有・生体など異なる種類の要素を2つ以上『組み合わせる』もの。5は顔認証（生体）が失敗し、代わりにパスコード（知識）単体で解除しており、要素を組み合わせていない＝多要素になっていない（正解＝適切でないのは5）。1パスキーは所有＋生体、2はカード（所有）＋暗証番号（知識）、3はパスワード（知識）＋SMS（所有）、4はカード（所有）＋パスワード（知識）で、いずれも多要素。"},
+
+{lec:"M",tag:"耐量子暗号",q:"量子暗号・耐量子暗号の説明として適切なものはどれか？",
+ a:0,c:[
+  "耐量子暗号への移行には10年程度の長期間を要するため、脅威が顕在化する前から進めていく必要がある。",
+  "量子暗号の方式の一つであるQKDは、RSA暗号の有力な置き換え候補である。",
+  "量子コンピュータの出現により、コンピュータの演算速度が飛躍的に上昇することが、RSA暗号の危殆化が早まる原因である。",
+  "耐量子暗号は、量子コンピュータでは解読困難な反面、既存のコンピュータでは容易に解読できるリスクがある。"],
+ e:"暗号の世代交代（移行）には長い時間がかかるため、危殆化の脅威が顕在化する前から計画的に進める必要がある（正解1）。2のQKD（量子鍵配送）は量子暗号通信であり、ソフトウェア的に対処する耐量子暗号(PQC)によるRSA置き換えとは全く用途が異なる。3は単なる演算速度向上ではなく量子コンピュータ特有のアルゴリズムが危殆化の原因。4は耐量子暗号は既存コンピュータでも安全。"},
+
+{lec:"M",tag:"Cookie",q:"Webの仕組みにおけるCookieの説明について、適切なものを選びなさい。",
+ a:3,c:[
+  "Cookieに入れるsessionIDはユーザを識別するものであり、抜け漏れを防ぐ観点から連続した番号であることが望ましい。",
+  "CookieはWebアクセスの行動追跡に使われるので、どのサイトに対しても原則OFFにすべきである。",
+  "Cookieは一定時間で効力が消滅するので、共用端末でWebアクセスする場合でもそれほど心配する必要はない。",
+  "CookieにSameSite属性を付けることができるが、これはそのサイトから外部のサイトへ遷移する際にCookieを引き継がないことで、行動追跡を防ぐ効果が期待できる。"],
+ e:"SameSite属性はドメインをまたぐCookie送信を制御し、外部サイトへの遷移時にCookieを引き継がせないことで行動追跡やCSRFを防ぐ（正解4）。1連続番号はセッションIDの推測を許し危険、2CookieをOFFにすると認可情報が引き継げず正常に使えない、3共用端末ではセッション情報の悪用リスクがあり心配は必要。"},
+
+{lec:"M",tag:"ハッシュ",q:"文字列「password1」のMD5ハッシュ値として正しいものはどれか？",
+ a:0,c:[
+  "7c6a180b36896a0a8c02787eeafb0e4c",
+  "5f4dcc3b5aa765d61d8327deb882cf99",
+  "e10adc3949ba59abbe56e057f20f883e",
+  "482c811da5d5b4bc6d497ffa98491e38"],
+ e:"「password1」のMD5ハッシュは 7c6a180b36896a0a8c02787eeafb0e4c（正解）。ハッシュ関数は同じ入力なら常に同じ固定長の出力になる。他は別の文字列（password / 123456 / password123 など）のMD5値。なおMD5は強衝突が現実的に発見可能で、パスワード保管には非推奨。"},
+
+{lec:"M",tag:"古典暗号",q:"シーザー暗号で暗号化された次のフレーズを復号（平文に変換）したものはどれか？",
+ pre:"eh d joredo surihvvlrqdo",
+ a:0,c:[
+  "be a global professional",
+  "we a global professional",
+  "be the global profession",
+  "be a global professor"],
+ e:"シーザー暗号は文字を一定数ずらす換字式暗号。この暗号文は各文字を3文字戻すと復号でき「be a global professional」になる（正解）。例：e→b、h→e、d→a、j→g。"},
+
+{lec:"M",tag:"サイドチャネル攻撃",q:"サイドチャネル攻撃に該当するものはどれか？",
+ a:0,c:[
+  "キーボードの打鍵音をモニタリングし、各キーの打鍵音の違いをAIなどを使って分析し、入力パスワードを推測する。",
+  "通信を行う2者間に割り込み、それぞれの相手に成りすまして両者の通信を中継し、盗聴や改ざんなどを行う。",
+  "推測可能なパスワードに対応したハッシュのリストを用いて、情報漏洩で入手したパスワードハッシュのリストから元のパスワードを復元する。",
+  "ICカードを分解して中の電子回路を顕微鏡で観察し、格納されている鍵を推測する。",
+  "PC操作中のユーザの後ろに立ち、キーボードの打鍵位置を覗き見てパスワードを推測する。"],
+ e:"サイドチャネル攻撃は装置の物理的特性（消費電力・電磁波・処理時間・動作音など）を外部から観測して秘密情報を盗む手法。打鍵音を解析してパスワードを推測するのは音（音響）を使ったサイドチャネル攻撃（正解1）。2は中間者攻撃、3はレインボーテーブルによる辞書攻撃、4は分解を伴う侵襲的解析（耐タンパー性の突破）、5はショルダーサーフィン。"},
+
+{lec:"M",tag:"パスワード",q:"パスワードの運用として最も適切なものはどれか？",
+ a:4,c:[
+  "攻撃を受けなくても定期的（例えば3ヶ月おき）に変更すべきである。",
+  "パスワード＋秘密の質問の設定により安全性を高めることができる。",
+  "パスワード変更時は、3つくらいのパスワードを事前に用意しておいて使いまわすのがよい。",
+  "一目で覚えられないような、複数の文字種を含めた複雑なパスワードを設定すべきである。",
+  "覚えられる範囲で可能な限り長いパスワードを用いるのがよい。"],
+ e:"最新のガイドライン(NIST等)では、複雑さよりも長さが重視される。覚えられる範囲でできるだけ長いパスワードが望ましい（正解5）。1の定期変更は使い回しや単純化を招くため必須ではない、2の『秘密の質問』は安全な回復手段とは限らない（神話）、3の使い回しは危険、4の複雑さの強制は必ずしも安全ではない。"},
+
+{lec:"M",tag:"デジタル署名",q:"文書をAさんからBさんに送るとき、公開鍵暗号方式を用いた暗号化と電子署名によってセキュリティを確保したい。このとき、Aさんの公開鍵が使われる場面はどれか？",
+ a:1,c:[
+  "Aさんが送る文書への電子署名の付与",
+  "Bさんが受け取った文書に付与された電子署名の検証",
+  "Aさんが送る文書の暗号化",
+  "Bさんが受け取った文書の復号"],
+ e:"デジタル署名では、送信者Aは自分の秘密鍵で署名し、受信者BはAの公開鍵で署名を検証する。よってAの公開鍵が使われるのは『Bによる電子署名の検証』（正解2）。1の署名付与はAの秘密鍵、3の文書の暗号化はBの公開鍵、4の文書の復号はBの秘密鍵を使う。"},
+
+{lec:"M",tag:"TLS",q:"TLSに関する説明として正しいものを選べ。",
+ a:2,c:[
+  "同じ組織が発行してもらった証明書であれば、異なるドメインであっても有効な証明書として使うことができる。",
+  "サーバとクライアントが共通で使える暗号スイートが複数あった場合、どの暗号スイートが使われるかはランダムに選択される。",
+  "TLSに証明書が必要な理由は、互いの通信相手が正しいか認証するためである。",
+  "DH鍵共有を使う場合のセキュリティ上のリスクは、事前共有する大きな素数が攻撃者に漏洩することである。",
+  "自己署名証明書であっても暗号化自体はされるので、通信路の安全は担保される。"],
+ e:"TLSの証明書は通信相手が正しいか（なりすましでないか）を認証するために必要（正解3）。1証明書は原則ドメインごとに有効、2暗号スイートはランダムではなく双方で使える中から選択される、4のDHでは素数pは公開してよく漏洩しても問題ない（秘密の自然数a,bが要）、5自己署名証明書は相手を認証できず安全は担保されない。"},
+
+{lec:"M",tag:"鍵共有",q:"5人のユーザの間で1対1の暗号通信を行うために鍵を配布したい。共通鍵・公開鍵を使った場合にそれぞれ配布しないといけない鍵の総数はいくつか？ただし、同じ鍵を複数の相手に配布する場合は1つとカウントする。",
+ a:3,c:[
+  "共通鍵：20個、公開鍵：10個",
+  "共通鍵：5個、公開鍵：5個",
+  "共通鍵：5個、公開鍵：10個",
+  "共通鍵：10個、公開鍵：5個",
+  "共通鍵：10個、公開鍵：10個",
+  "この選択肢にはない",
+  "共通鍵：20個、公開鍵：20個",
+  "共通鍵：20個、公開鍵：5個"],
+ e:"共通鍵は2者間ごとに固有の鍵が必要なので、5人なら 5C2＝10個。公開鍵は各自が自分の公開鍵を1つ配布すればよいので 5個。よって『共通鍵：10個、公開鍵：5個』（正解4）。"},
+];
+
+/* ============================================================
+   状態・ストレージ
+   ============================================================ */
+const LS_KEY = "secquiz_stats_v1";
+let bank = "slides"; // "slides" | "mock"
+let session = null; // {list, idx, answers:[], correct}
+
+function loadStats(){
+  try{ return JSON.parse(localStorage.getItem(LS_KEY)) || {q:{}}; }
+  catch(e){ return {q:{}}; }
+}
+function saveStats(s){ try{ localStorage.setItem(LS_KEY, JSON.stringify(s)); }catch(e){} }
+function qid(q){ return q.lec+"|"+q.q; }
+
+/* ============================================================
+   ホーム画面描画
+   ============================================================ */
+const $ = id => document.getElementById(id);
+
+function countByLec(lec){ return QUESTIONS.filter(q=>q.lec===lec).length; }
+
+let selPool = [];        // 選択中の範囲（問題の配列）
+let selName = "全範囲";  // 選択中の範囲名
+let slideAllTile = null, mockTile = null;
+let slideRanges = [], mockRanges = [];  // 範囲セレクタ用のレジストリ [{name,pool,wrap}]
+
+function makeTile(title, pool, name, badge){
+  const wrap = document.createElement("div");
+  wrap.className = "lecwrap";
+  wrap._pool = pool; wrap._name = name;
+  wrap.innerHTML = `
+    <div class="rail"><span class="node">${badge}</span></div>
+    <div class="body">
+      <button type="button" class="lechead">
+        <span class="t">${title}</span><span class="n">0%</span>
+      </button>
+    </div>`;
+  wrap.querySelector(".lechead").addEventListener("click", ()=>selectRange(pool, name, wrap, true));
+  return wrap;
+}
+
+function renderLecList(){
+  const box = $("lecList"); box.innerHTML=""; slideRanges = [];
+  const lecs = Object.keys(LECTURES).filter(k=>/^\d+$/.test(k)).map(Number).sort((a,b)=>a-b);
+  lecs.forEach(lec=>{
+    // 資料番号（丸ノード）＝ 2桁ゼロ埋め
+    const pool = QUESTIONS.filter(q=>q.lec===lec);
+    const wrap = makeTile(LECTURES[lec].title, pool, LECTURES[lec].short, String(lec).padStart(2,"0"));
+    box.appendChild(wrap);
+    slideRanges.push({name:LECTURES[lec].short, pool, wrap});
+  });
+  // 末尾に「全範囲」タイル（ノードは「全」）
+  slideAllTile = makeTile("全範囲からまとめて", QUESTIONS.slice(), "全範囲", "全");
+  box.appendChild(slideAllTile);
+  slideRanges.push({name:"全範囲", pool:QUESTIONS.slice(), wrap:slideAllTile});
+}
+
+function renderMockList(){
+  const box = $("mockList"); box.innerHTML=""; mockRanges = [];
+  mockTile = makeTile("模擬問題ぜんぶ", MOCK.slice(), "模擬問題", "模");
+  box.appendChild(mockTile);
+  mockRanges.push({name:"模擬問題", pool:MOCK.slice(), wrap:mockTile});
+}
+
+// 範囲セレクタ（上部）に、現在のバンクの範囲を並べる
+function populateRangeSelect(){
+  const sel = $("rangeSelect");
+  const list = (bank==="mock") ? mockRanges : slideRanges;
+  sel.innerHTML = list.map(r=>`<option value="${r.name}">${r.name}</option>`).join("");
+  sel.value = selName;
+}
+
+// 各タイルに、その範囲の取り組み状況（回答済み割合）を％表示
+function answeredCount(pool, s){
+  return pool.filter(q=>{ const r=s.q[qid(q)]; return r && r.seen>0; }).length;
+}
+function updateTilePercents(s){
+  document.querySelectorAll("#home .lecwrap").forEach(el=>{
+    const pool = el._pool || [];
+    const pct = pool.length ? Math.round(answeredCount(pool, s)/pool.length*100) : 0;
+    const n = el.querySelector(".n");
+    if(n) n.textContent = pct+"%";
+  });
+}
+
+// 問題カテゴリの配置：PC=右カラム、スマホ=選択中の枠内（アコーディオン）
+function placeCatPanel(){
+  const panel = $("catPanel");
+  if(window.matchMedia && window.matchMedia("(min-width:640px)").matches){
+    $("probSlot").appendChild(panel);                 // PC：右カラム
+  }else{
+    const sel = document.querySelector("#home .lecwrap.sel");
+    if(sel) sel.querySelector(".body").appendChild(panel);  // スマホ：選択駅のカード内
+  }
+}
+
+function isPC(){ return window.matchMedia && window.matchMedia("(min-width:640px)").matches; }
+
+// PC：範囲リストのスクロール領域の高さを「問題カード」に合わせる
+function syncRangeHeight(){
+  const h = isPC() ? $("probCard").offsetHeight : 0;
+  ["slideSelect","mockSelect"].forEach(id=>{ $(id).style.maxHeight = h ? h+"px" : ""; });
+}
+
+// 要素をスクロールコンテナ内で中央より1つ上に（ウィンドウは動かさない）
+function centerInContainer(container, el, smooth){
+  const cRect=container.getBoundingClientRect(), eRect=el.getBoundingClientRect();
+  const step = el.offsetHeight + 8;   // タイル1つぶん（gap込み）
+  const offset = (eRect.top - cRect.top) - (container.clientHeight/2 - el.offsetHeight/2) + step;
+  container.scrollTo({top: container.scrollTop + offset, behavior: smooth?"smooth":"auto"});
+}
+
+// 範囲を選択（クイズは開始しない。問題カテゴリのクリックで開始する）
+function selectRange(pool, name, wrap, userInitiated){
+  selPool = pool; selName = name;
+  document.querySelectorAll("#home .lecwrap").forEach(x=>x.classList.remove("sel"));
+  if(wrap) wrap.classList.add("sel");
+  placeCatPanel();
+  renderStats();
+  syncRangeHeight();
+  if(!wrap) return;
+  if(isPC()){
+    // PC：選択中の章を範囲リスト内で中央に（ウィンドウはそのまま）
+    const container = (bank==="mock") ? $("mockSelect") : $("slideSelect");
+    requestAnimationFrame(()=>centerInContainer(container, wrap, !!userInitiated));
+  }else if(userInitiated){
+    // スマホ：選択した範囲を画面中央へガイド（スムーススクロール）
+    wrap.scrollIntoView({behavior:"smooth", block:"center"});
+  }
+}
+window.addEventListener("resize", ()=>{ placeCatPanel(); syncRangeHeight(); });
+
+function switchBank(b){
+  bank = b;
+  document.body.classList.toggle("mockbank", b==="mock");  // 模擬はピンクテーマ
+  document.querySelectorAll("#bankSwitch button").forEach(t=>t.classList.toggle("on", t.dataset.bank===b));
+  $("slideSelect").classList.toggle("hide", b!=="slides");
+  $("mockSelect").classList.toggle("hide", b!=="mock");
+  // バンク切替時は既定の範囲（そのバンクの全問）を選択
+  if(b==="mock") selectRange(MOCK.slice(), "模擬問題", mockTile);
+  else selectRange(QUESTIONS.slice(), "全範囲", slideAllTile);
+  populateRangeSelect();
+}
+
+// 上部セレクタで範囲を選んだとき
+function onRangeSelectChange(){
+  const list = (bank==="mock") ? mockRanges : slideRanges;
+  const r = list.find(x=>x.name===$("rangeSelect").value);
+  if(r) selectRange(r.pool, r.name, r.wrap, true);
+}
+
+// 選択範囲内の抽出：苦手（最後に不正解）／未出題／正解済み（最後に正解）
+function weakSubset(pool, s){
+  return pool.filter(q=>{ const r=s.q[qid(q)]; return r && r.seen>0 && r.lastOk===false; });
+}
+function unseenSubset(pool, s){
+  return pool.filter(q=>{ const r=s.q[qid(q)]; return !r || !(r.seen>0); });
+}
+function correctSubset(pool, s){
+  return pool.filter(q=>{ const r=s.q[qid(q)]; return r && r.seen>0 && r.lastOk===true; });
+}
+
+function renderStats(){
+  const s = loadStats();
+  // 上部プログレスバー：選択中の範囲の「回答済み / 範囲の問題数」
+  const rangeTotal = selPool.length;
+  const answered = answeredCount(selPool, s);
+  if($("rangeSelect").value !== selName) $("rangeSelect").value = selName;
+  $("progNum").textContent = answered;
+  $("progTotal").textContent = rangeTotal;
+  $("progFill").style.width = (rangeTotal ? answered/rangeTotal*100 : 0) + "%";
+  // 各タイルの取り組み％を更新
+  updateTilePercents(s);
+  // 選択中の範囲での各出題（項目のクリックで出題）。対象0問なら無効表示
+  $("cardWrong").classList.toggle("disabled", weakSubset(selPool, s).length===0);
+  $("cardUnseen").classList.toggle("disabled", unseenSubset(selPool, s).length===0);
+  $("cardCorrect").classList.toggle("disabled", correctSubset(selPool, s).length===0);
+  $("cardRandom").classList.toggle("disabled", rangeTotal===0);
+}
+
+/* ============================================================
+   出題ロジック
+   ============================================================ */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function buildChoiceOrder(q){
+  // 選択肢をシャッフルし、正解の新インデックスを返す
+  const idx = q.c.map((_,i)=>i);
+  const order = shuffle(idx);
+  return { order, correct: order.indexOf(q.a) };
+}
+
+function startSession(list){
+  if(list.length===0) return;
+  session = {
+    list: list.map(q=>{
+      const co = buildChoiceOrder(q);
+      return {q, order:co.order, correct:co.correct};
+    }),
+    idx:0, answers:[], correct:0
+  };
+  buildBar(session.list.length);
+  showScreen("quiz");
+  renderQuestion();
+}
+
+// 上部バー：問題数ぶんのセグメント（正解=緑／不正解=赤で加算）
+function buildBar(n){
+  const bar = $("qBar"); bar.innerHTML="";
+  for(let i=0;i<n;i++){ const s=document.createElement("div"); s.className="seg"; bar.appendChild(s); }
+}
+
+function startPool(pool){
+  // 出題順を必ずシャッフルして開始
+  startSession(shuffle(pool));
+}
+
+/* ============================================================
+   問題画面
+   ============================================================ */
+function renderQuestion(){
+  const item = session.list[session.idx];
+  const q = item.q;
+  const n = session.list.length;
+  $("qProg").textContent = `${session.idx+1} / ${n}`;
+  $("qScore").textContent = `正解 ${session.correct}`;
+  const tagEl = $("qTag");
+  tagEl.textContent = (q.lec==="M" && q.tag) ? "模擬｜"+q.tag : LECTURES[q.lec].short;
+  tagEl.classList.toggle("mock", q.lec==="M");
+  $("qText").textContent = q.q;
+  const pre = $("qPre");
+  if(q.pre){ pre.textContent = q.pre; pre.classList.remove("hide"); }
+  else{ pre.classList.add("hide"); pre.textContent=""; }
+
+  const box = $("qChoices"); box.innerHTML="";
+  const keys=["A","B","C","D","E","F","G","H","I","J"];
+  item.order.forEach((origIdx, pos)=>{
+    const el = document.createElement("div");
+    el.className="choice";
+    el.innerHTML = `<span class="key">${keys[pos]}</span><span>${q.c[origIdx]}</span>`;
+    el.addEventListener("click", ()=>selectChoice(pos, el));
+    box.appendChild(el);
+  });
+
+  const ex = $("qExplain"); ex.className="explain";
+  $("nextBtn").classList.add("hide");     // 採点するまで「次へ」は出さない
+  item.picked = null; item.locked = false;
+}
+
+function selectChoice(pos, el){
+  const item = session.list[session.idx];
+  if(item.locked) return;               // 採点後はロック
+  item.picked = pos;
+  gradeAndReveal();                      // 選んだら即・正誤判定＆解説
+}
+
+function gradeAndReveal(){
+  const item = session.list[session.idx];
+  const q = item.q;
+  item.locked = true;
+  const kids = [...$("qChoices").children];
+  kids.forEach(c=>c.classList.add("disabled"));
+  const isOk = (item.picked === item.correct);
+  kids[item.correct].classList.add("correct");
+  if(!isOk && item.picked!=null) kids[item.picked].classList.add("wrong");
+
+  const ex = $("qExplain");
+  ex.classList.add("show", isOk?"ok":"ng");
+  $("qVerdict").textContent = isOk ? "◎ 正解！" : "✕ 不正解";
+  $("qExpText").textContent = q.e;
+  $("qSrc").textContent = LECTURES[q.lec].title;
+
+  if(isOk) session.correct++;
+  $("qScore").textContent = `正解 ${session.correct}`;
+  // 上部バー：この問題のセグメントを 正解=緑／不正解=赤 で塗る
+  const seg = $("qBar").children[session.idx];
+  if(seg) seg.classList.add(isOk ? "ok" : "ng");
+
+  // 記録
+  recordAnswer(q, isOk);
+  session.answers.push({q, picked:item.picked, correct:item.correct, order:item.order, isOk});
+
+  const nb = $("nextBtn");
+  nb.textContent = (session.idx===session.list.length-1) ? "結果を見る" : "次の問題へ";
+  nb.classList.remove("hide");
+
+  // 解説へスムーススクロール
+  requestAnimationFrame(()=>{ $("qExplain").scrollIntoView({behavior:"smooth", block:"center"}); });
+}
+
+function recordAnswer(q, isOk){
+  const s = loadStats();
+  const id = qid(q);
+  if(!s.q[id]) s.q[id]={seen:0, ok:0, lastOk:null};
+  s.q[id].seen++; if(isOk) s.q[id].ok++;
+  s.q[id].lastOk = isOk;
+  saveStats(s);
+}
+
+$("nextBtn").addEventListener("click", ()=>{
+  // 採点後の「次へ」＝次の問題へ／結果へ
+  if(session.idx < session.list.length-1){
+    session.idx++;
+    renderQuestion();
+    window.scrollTo({top:0, behavior:"smooth"});
+  }else{
+    showResult();
+  }
+});
+
+$("quitBtn").addEventListener("click", goHome);
+
+/* キーボード操作（PC）：1〜9で選択、Enter/Spaceで解答・次へ */
+document.addEventListener("keydown", (ev)=>{
+  if($("quiz").classList.contains("hide") || !session) return;
+  if(ev.key==="Enter" || ev.key===" "){
+    if(!$("nextBtn").classList.contains("hide")){ ev.preventDefault(); $("nextBtn").click(); }
+    return;
+  }
+  const num = parseInt(ev.key,10);
+  if(!isNaN(num) && num>=1){
+    const kids = $("qChoices").children;
+    const item = session.list[session.idx];
+    if(item.locked) return;
+    if(num<=kids.length){ ev.preventDefault(); kids[num-1].click(); }
+  }
+});
+
+/* ============================================================
+   結果画面
+   ============================================================ */
+function showResult(){
+  const n = session.list.length;
+  const c = session.correct;
+  const pct = Math.round(c/n*100);
+  const col = pct>=80?"var(--ok)":pct>=50?"var(--warn)":"var(--ng)";
+  $("rPct").textContent = pct+"%";
+  $("rPct").style.color = col;
+  $("rLbl").textContent = `${n}問中 ${c}問正解`;
+  // スコアリング（conic-gradient）
+  const ring = $("rRing");
+  ring.style.background = `conic-gradient(${col} ${pct*3.6}deg, var(--card2) 0deg)`;
+  const rank = pct>=90?"素晴らしい！合格ラインです🎉":pct>=70?"good：あと一息！":pct>=50?"復習しましょう":"要復習：もう一度";
+  $("rRank").textContent = rank;
+  $("rRank").style.color = col;
+
+  const wrongs = session.answers.filter(a=>!a.isOk);
+  const rc = $("reviewCard");
+  if(wrongs.length===0){
+    rc.classList.add("hide");
+  }else{
+    rc.classList.remove("hide");
+    const list = $("reviewList"); list.innerHTML="";
+    wrongs.forEach(a=>{
+      const yourAns = a.picked!=null ? a.q.c[a.order[a.picked]] : "（未回答）";
+      const rightAns = a.q.c[a.q.a];
+      const el=document.createElement("div");
+      el.className="review-item";
+      const lbl = (a.q.lec==="M" && a.q.tag) ? "模擬｜"+a.q.tag : LECTURES[a.q.lec].short;
+      el.innerHTML=`
+        <div class="rq">${lbl}｜${a.q.q}</div>
+        <div class="ra"><span class="ng">あなた: ${yourAns}</span> ／ <span class="ok">正解: ${rightAns}</span></div>
+        <div class="ra" style="color:var(--muted);margin-top:4px">${a.q.e}</div>`;
+      list.appendChild(el);
+    });
+  }
+  showScreen("result");
+  window.scrollTo({top:0});
+}
+
+$("againBtn").addEventListener("click", ()=>{
+  const list = session.list.map(it=>it.q);
+  startSession(shuffle(list));
+});
+$("homeBtn").addEventListener("click", goHome);
+
+/* ============================================================
+   画面遷移・イベント
+   ============================================================ */
+function showScreen(name){
+  ["home","quiz","result"].forEach(s=> $(s).classList.toggle("hide", s!==name));
+  // ホーム以外（クイズ／結果）では上部ヘッダーを非表示にして余白も詰める
+  $("appbar").classList.toggle("hide", name!=="home");
+  // クイズ画面は1画面に収める（ボタンを下部固定・カード内スクロール）
+  document.body.classList.toggle("quizmode", name==="quiz");
+}
+function goHome(){
+  session=null;
+  renderStats();
+  showScreen("home");
+  window.scrollTo({top:0});
+}
+
+// 問題カテゴリのクリックで、選択中の範囲のクイズを開始
+$("cardWrong").addEventListener("click", ()=>{
+  const w = weakSubset(selPool, loadStats());
+  if(w.length) startPool(w);
+});
+$("cardUnseen").addEventListener("click", ()=>{
+  const u = unseenSubset(selPool, loadStats());
+  if(u.length) startPool(u);
+});
+$("cardCorrect").addEventListener("click", ()=>{
+  const c = correctSubset(selPool, loadStats());
+  if(c.length) startPool(c);
+});
+$("cardRandom").addEventListener("click", ()=>{
+  if(selPool.length) startPool(selPool);
+});
+document.querySelectorAll("#bankSwitch button").forEach(t=>{
+  t.addEventListener("click", ()=>switchBank(t.dataset.bank));
+});
+$("rangeSelect").addEventListener("change", onRangeSelectChange);
+
+/* 初期化 */
+$("mockCount").textContent = MOCK.length;
+renderLecList();
+renderMockList();
+renderStats();
+switchBank("slides");
+</script>
