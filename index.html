@@ -78,7 +78,12 @@
   .home-split{display:grid; grid-template-columns:1fr; gap:16px}
   .home-split > .card{margin-bottom:0}
   @media (min-width:640px){
-    .home-split{grid-template-columns:1fr 1fr; align-items:start}
+    /* 未選択：範囲リストのみを中央に大きく表示（問題カードは非表示） */
+    .home-split{grid-template-columns:minmax(0,520px); justify-content:center; align-items:start}
+    #probCard{display:none}
+    /* 章を選択したら：左右2カラム（範囲=左／問題=右） */
+    body.hassel .home-split{grid-template-columns:1fr 1fr; justify-content:stretch}
+    body.hassel #probCard{display:block}
     /* PC：範囲リストは問題カードと同じ高さ内でスクロール（高さはJSで同期） */
     #slideSelect, #mockSelect{overflow-y:auto; overflow-x:hidden; padding-right:6px}
   }
@@ -119,7 +124,10 @@
   .lechead .t{font-weight:600; font-size:13.5px; line-height:1.35; flex:1}
   .lechead .n{color:var(--accent); font-weight:700; font-size:12px; flex:none;
     background:var(--card); border:1px solid var(--border); border-radius:99px; padding:2px 9px; min-width:44px; text-align:center}
-  .catpanel{display:flex; flex-direction:column; gap:14px; padding-top:8px}
+  /* 問題カテゴリは範囲を選ぶまで非表示 */
+  .catpanel{display:none; flex-direction:column; gap:14px; padding-top:8px}
+  @media (min-width:640px){ body.hassel #probSlot .catpanel{display:flex; animation:catSlide .85s cubic-bezier(.16,.85,.25,1)} }
+  body.hassel #probHint{display:none}
 
   /* スマホ：路線図（縦型）レイアウト＋アコーディオン */
   @media (max-width:639px){
@@ -147,7 +155,7 @@
     .lecwrap.sel .body{background:var(--card); box-shadow:var(--shadow)}
     .lecwrap.sel .lechead .t{font-size:15px}
     .catpanel{display:none}
-    .lecwrap.sel .catpanel{display:flex; padding:10px 14px 14px; animation:fade .2s ease}
+    .lecwrap.sel .catpanel{display:flex; padding:10px 14px 14px; animation:catSlide .8s cubic-bezier(.16,.85,.25,1)}
   }
   .mockinfo{padding:12px 14px; border:1px solid var(--border); border-radius:11px; background:var(--card2); font-size:13px}
   .mockinfo b{color:var(--warn)}
@@ -229,6 +237,7 @@
     border:1px solid var(--border); font-size:13.5px; display:none}
   .explain.show{display:block; animation:fade .25s}
   @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+  @keyframes catSlide{from{opacity:0; transform:translateY(-26px)} to{opacity:1; transform:none}}
   @keyframes ringpulse{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 55%,transparent)}to{box-shadow:0 0 0 14px transparent}}
   .explain .verdict{font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:6px}
   .explain.ok .verdict{color:var(--ok)}
@@ -295,6 +304,7 @@
       <!-- 問題カテゴリ（PCでは右カラム／スマホでは選択枠内に移動） -->
       <div class="card" id="probCard">
         <h2>問題</h2>
+        <p id="probHint" class="cardnote" style="margin-top:0">← 範囲を選ぶと問題が表示されます</p>
         <div id="probSlot"></div>
       </div>
     </div>
@@ -951,7 +961,11 @@ function makeTile(title, pool, name, badge){
         <span class="t">${title}</span><span class="n">0%</span>
       </button>
     </div>`;
-  wrap.querySelector(".lechead").addEventListener("click", ()=>selectRange(pool, name, wrap, true));
+  wrap.querySelector(".lechead").addEventListener("click", ()=>{
+    // 見出しをタップ：開く／もう一度タップで閉じる（トグル）
+    if(wrap.classList.contains("sel")) clearSelection();
+    else selectRange(pool, name, wrap, true);
+  });
   return wrap;
 }
 
@@ -982,8 +996,9 @@ function renderMockList(){
 function populateRangeSelect(){
   const sel = $("rangeSelect");
   const list = (bank==="mock") ? mockRanges : slideRanges;
-  sel.innerHTML = list.map(r=>`<option value="${r.name}">${r.name}</option>`).join("");
-  sel.value = selName;
+  sel.innerHTML = '<option value="">範囲を選ぶ…</option>' +
+    list.map(r=>`<option value="${r.name}">${r.name}</option>`).join("");
+  sel.value = selName || "";
 }
 
 // 各タイルに、その範囲の取り組み状況（回答済み割合）を％表示
@@ -1012,9 +1027,11 @@ function placeCatPanel(){
 
 function isPC(){ return window.matchMedia && window.matchMedia("(min-width:640px)").matches; }
 
-// PC：範囲リストのスクロール領域の高さを「問題カード」に合わせる
+// PC：範囲を選んだら、範囲リストのスクロール領域の高さを「問題カード」に合わせる
+// （未選択のときは制限なし＝全リスト表示）
 function syncRangeHeight(){
-  const h = isPC() ? $("probCard").offsetHeight : 0;
+  const on = isPC() && document.body.classList.contains("hassel");
+  const h = on ? $("probCard").offsetHeight : 0;
   ["slideSelect","mockSelect"].forEach(id=>{ $(id).style.maxHeight = h ? h+"px" : ""; });
 }
 
@@ -1026,11 +1043,21 @@ function centerInContainer(container, el, smooth){
   container.scrollTo({top: container.scrollTop + offset, behavior: smooth?"smooth":"auto"});
 }
 
+// 未選択状態（問題カテゴリを表示しない）
+function clearSelection(){
+  selPool = []; selName = "";
+  document.querySelectorAll("#home .lecwrap").forEach(x=>x.classList.remove("sel"));
+  document.body.classList.remove("hassel");
+  renderStats();
+  syncRangeHeight();
+}
+
 // 範囲を選択（クイズは開始しない。問題カテゴリのクリックで開始する）
 function selectRange(pool, name, wrap, userInitiated){
   selPool = pool; selName = name;
   document.querySelectorAll("#home .lecwrap").forEach(x=>x.classList.remove("sel"));
   if(wrap) wrap.classList.add("sel");
+  document.body.classList.add("hassel");   // 選択したら問題カテゴリを表示
   placeCatPanel();
   renderStats();
   syncRangeHeight();
@@ -1052,9 +1079,8 @@ function switchBank(b){
   document.querySelectorAll("#bankSwitch button").forEach(t=>t.classList.toggle("on", t.dataset.bank===b));
   $("slideSelect").classList.toggle("hide", b!=="slides");
   $("mockSelect").classList.toggle("hide", b!=="mock");
-  // バンク切替時は既定の範囲（そのバンクの全問）を選択
-  if(b==="mock") selectRange(MOCK.slice(), "模擬問題", mockTile);
-  else selectRange(QUESTIONS.slice(), "全範囲", slideAllTile);
+  // バンク切替時は未選択に戻す（範囲を選ぶまで問題は非表示）
+  clearSelection();
   populateRangeSelect();
 }
 
@@ -1081,7 +1107,7 @@ function renderStats(){
   // 上部プログレスバー：選択中の範囲の「回答済み / 範囲の問題数」
   const rangeTotal = selPool.length;
   const answered = answeredCount(selPool, s);
-  if($("rangeSelect").value !== selName) $("rangeSelect").value = selName;
+  if($("rangeSelect").value !== (selName||"")) $("rangeSelect").value = selName||"";
   $("progNum").textContent = answered;
   $("progTotal").textContent = rangeTotal;
   $("progFill").style.width = (rangeTotal ? answered/rangeTotal*100 : 0) + "%";
