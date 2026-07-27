@@ -278,7 +278,7 @@
     <div class="prog" id="homeProg">
       <div class="prog-bar"><i id="progFill"></i></div>
       <div class="prog-lbl">
-        <span>回答 <select id="rangeSelect" class="rangesel" aria-label="範囲を選ぶ"></select></span>
+        <span>正解 <select id="rangeSelect" class="rangesel" aria-label="範囲を選ぶ"></select></span>
         <span><b id="progNum">0</b> / <span id="progTotal">0</span> 問</span>
       </div>
     </div>
@@ -295,7 +295,8 @@
         <div id="mockSelect" class="hide">
           <div class="mockinfo" style="margin-bottom:12px">
             授業とは別に用意された<b>模擬問題（全<span id="mockCount">0</span>問）</b>。
-            DNS・ファイアウォール・CSIRT・ISMS・ペンテスト・ログ分析など、本番を想定した総合問題です。
+            本番を想定した総合問題で、分野が近いものを<b>3つの章</b>にまとめてあります。
+            まとめて解くことも、章ごとに解くこともできます。
           </div>
           <div class="lec-list" id="mockList"></div>
         </div>
@@ -328,7 +329,7 @@
   <!-- ===== QUIZ ===== -->
   <section id="quiz" class="hide">
     <div class="qtop">
-      <span id="qProg">1 / 10</span>
+      <span id="qProg">第1問 / 全10問</span>
       <span id="qScore">正解 0</span>
     </div>
     <div class="bar" id="qBar"></div>
@@ -925,6 +926,27 @@ const MOCK = [
 ];
 
 /* ============================================================
+   模擬問題の章分け（分野が近いものを3章にまとめる）
+   tag で振り分ける。どの章にも属さない tag は「その他」タイルに集約。
+   ============================================================ */
+const MOCK_CHAPTERS = [
+  {no:1, title:"第1章 セキュリティの基礎とマネジメント", short:"模擬1",
+   tags:["安全と安心","CIA","Known Knowns","OSINT","脅威と脆弱性","エコーチェンバー","OECD8原則","ISMS","CSIRT","CSIRT演習"]},
+  {no:2, title:"第2章 攻撃手法とインシデント対応・防御", short:"模擬2",
+   tags:["DNS","ランサムウェア","標的型攻撃","ソーシャルエンジニアリング","ログ分析","ペンテスト","ファイアウォール","多層防御","脆弱性対策"]},
+  {no:3, title:"第3章 暗号・認証とWebの技術", short:"模擬3",
+   tags:["多要素認証","耐量子暗号","Cookie","ハッシュ","古典暗号","サイドチャネル攻撃","パスワード","デジタル署名","TLS","鍵共有"]},
+];
+// 各章の問題プールを作る（未分類は最後に「その他」として追加）
+function mockChapterPools(){
+  const out = MOCK_CHAPTERS.map(ch => ({...ch, pool: MOCK.filter(q => ch.tags.includes(q.tag))}));
+  const assigned = new Set(MOCK_CHAPTERS.flatMap(ch => ch.tags));
+  const rest = MOCK.filter(q => !assigned.has(q.tag));
+  if(rest.length) out.push({no:out.length+1, title:"その他の分野", short:"模擬他", tags:[], pool:rest});
+  return out.filter(ch => ch.pool.length);
+}
+
+/* ============================================================
    状態・ストレージ
    ============================================================ */
 const LS_KEY = "secquiz_stats_v1";
@@ -990,6 +1012,12 @@ function renderMockList(){
   mockTile = makeTile("模擬問題ぜんぶ", MOCK.slice(), "模擬問題", "模");
   box.appendChild(mockTile);
   mockRanges.push({name:"模擬問題", pool:MOCK.slice(), wrap:mockTile});
+  // 分野が近い問題をまとめた章タイル
+  mockChapterPools().forEach(ch=>{
+    const wrap = makeTile(ch.title, ch.pool, ch.short, String(ch.no).padStart(2,"0"));
+    box.appendChild(wrap);
+    mockRanges.push({name:ch.short, pool:ch.pool, wrap});
+  });
 }
 
 // 範囲セレクタ（上部）に、現在のバンクの範囲を並べる
@@ -1001,14 +1029,15 @@ function populateRangeSelect(){
   sel.value = selName || "";
 }
 
-// 各タイルに、その範囲の取り組み状況（回答済み割合）を％表示
-function answeredCount(pool, s){
-  return pool.filter(q=>{ const r=s.q[qid(q)]; return r && r.seen>0; }).length;
+// 各タイルに、その範囲の習得状況（＝最後に正解した問題の割合）を％表示
+// 一度正解しても、次に間違えるとその問題は外れる（＝％が下がる）
+function masteredCount(pool, s){
+  return pool.filter(q=>{ const r=s.q[qid(q)]; return r && r.seen>0 && r.lastOk===true; }).length;
 }
 function updateTilePercents(s){
   document.querySelectorAll("#home .lecwrap").forEach(el=>{
     const pool = el._pool || [];
-    const pct = pool.length ? Math.round(answeredCount(pool, s)/pool.length*100) : 0;
+    const pct = pool.length ? Math.round(masteredCount(pool, s)/pool.length*100) : 0;
     const n = el.querySelector(".n");
     if(n) n.textContent = pct+"%";
   });
@@ -1104,13 +1133,13 @@ function correctSubset(pool, s){
 
 function renderStats(){
   const s = loadStats();
-  // 上部プログレスバー：選択中の範囲の「回答済み / 範囲の問題数」
+  // 上部プログレスバー：選択中の範囲の「正解済み / 範囲の問題数」（タイルの％と同じ基準）
   const rangeTotal = selPool.length;
-  const answered = answeredCount(selPool, s);
+  const mastered = masteredCount(selPool, s);
   if($("rangeSelect").value !== (selName||"")) $("rangeSelect").value = selName||"";
-  $("progNum").textContent = answered;
+  $("progNum").textContent = mastered;
   $("progTotal").textContent = rangeTotal;
-  $("progFill").style.width = (rangeTotal ? answered/rangeTotal*100 : 0) + "%";
+  $("progFill").style.width = (rangeTotal ? mastered/rangeTotal*100 : 0) + "%";
   // 各タイルの取り組み％を更新
   updateTilePercents(s);
   // 選択中の範囲での各出題（項目のクリックで出題）。対象0問なら無効表示
@@ -1167,7 +1196,8 @@ function renderQuestion(){
   const item = session.list[session.idx];
   const q = item.q;
   const n = session.list.length;
-  $("qProg").textContent = `${session.idx+1} / ${n}`;
+  // 番号は「出題順」（シャッフル後の並び）＝元データの並びとは無関係
+  $("qProg").textContent = `第${session.idx+1}問 / 全${n}問`;
   $("qScore").textContent = `正解 ${session.correct}`;
   const tagEl = $("qTag");
   tagEl.textContent = (q.lec==="M" && q.tag) ? "模擬｜"+q.tag : LECTURES[q.lec].short;
@@ -1223,7 +1253,7 @@ function gradeAndReveal(){
 
   // 記録
   recordAnswer(q, isOk);
-  session.answers.push({q, picked:item.picked, correct:item.correct, order:item.order, isOk});
+  session.answers.push({no:session.idx+1, q, picked:item.picked, correct:item.correct, order:item.order, isOk});
 
   const nb = $("nextBtn");
   nb.textContent = (session.idx===session.list.length-1) ? "結果を見る" : "次の問題へ";
@@ -1303,7 +1333,7 @@ function showResult(){
       el.className="review-item";
       const lbl = (a.q.lec==="M" && a.q.tag) ? "模擬｜"+a.q.tag : LECTURES[a.q.lec].short;
       el.innerHTML=`
-        <div class="rq">${lbl}｜${a.q.q}</div>
+        <div class="rq">第${a.no}問｜${lbl}｜${a.q.q}</div>
         <div class="ra"><span class="ng">あなた: ${yourAns}</span> ／ <span class="ok">正解: ${rightAns}</span></div>
         <div class="ra" style="color:var(--muted);margin-top:4px">${a.q.e}</div>`;
       list.appendChild(el);
