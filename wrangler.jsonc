@@ -7,10 +7,9 @@
     "directory": "./public",
     "binding": "ASSETS"
   },
-  // KV（進捗の保存先）は `wrangler kv namespace create PROGRESS` で作成後、下のコメントを外してIDを設定する。
-  // 未設定の間は /api/sync が "storage not configured" を返すだけで、ページ表示は通常どおり動く。
-  // "kv_namespaces": [
-  //   { "binding": "PROGRESS", "id": "<KV_NAMESPACE_ID>" }
-  // ],
+  // KV（進捗の保存先）：なまえ＋4桁PINのハッシュをキーに、問題ごとの正誤を保存する
+  "kv_namespaces": [
+    { "binding": "PROGRESS", "id": "0c0e4ad926234ce58564fb789914ef0d" }
+  ],
   "observability": { "enabled": true }
 }
