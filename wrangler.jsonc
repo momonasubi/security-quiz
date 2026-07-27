@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "security-quiz",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-01-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  // KV（進捗の保存先）は `wrangler kv namespace create PROGRESS` で作成後、下のコメントを外してIDを設定する。
+  // 未設定の間は /api/sync が "storage not configured" を返すだけで、ページ表示は通常どおり動く。
+  // "kv_namespaces": [
+  //   { "binding": "PROGRESS", "id": "<KV_NAMESPACE_ID>" }
+  // ],
+  "observability": { "enabled": true }
+}
